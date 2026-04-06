@@ -550,7 +550,8 @@ body::before {
   opacity: 0.3;
 }
 
-.gallery-item .thumb .tag {
+.gallery-item .thumb .tag,
+.gallery-item .video-thumb .tag {
   position: absolute;
   top: 8px;
   right: 8px;
