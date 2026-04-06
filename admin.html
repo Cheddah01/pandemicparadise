@@ -262,6 +262,7 @@
         <button class="tab active" data-tab="gallery">📸 Gallery</button>
         <button class="tab" data-tab="stories">💬 Stories</button>
         <button class="tab" data-tab="timeline">⏳ Timeline</button>
+        <button class="tab" data-tab="community">👥 Community</button>
       </div>
 
       <!-- ===== GALLERY TAB ===== -->
@@ -374,6 +375,45 @@
         <div class="entries-section">
           <h3>Timeline events</h3>
           <div id="timeline-list"></div>
+        </div>
+      </div>
+
+      <!-- ===== COMMUNITY TAB ===== -->
+      <div class="tab-panel" id="panel-community">
+        <div class="field">
+          <label>Player name</label>
+          <input type="text" id="c-name" placeholder="Puzzle">
+        </div>
+        <div class="field">
+          <label>Role</label>
+          <select id="c-role">
+            <option value="owner">Owner</option>
+            <option value="admin">Admin</option>
+            <option value="mod">Mod</option>
+            <option value="builder">Builder</option>
+            <option value="player" selected>Player</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Short bio (optional)</label>
+          <textarea id="c-bio" placeholder="What were they known for on the server?"></textarea>
+        </div>
+        <div class="field">
+          <label>Year joined (optional)</label>
+          <select id="c-joined">
+            <option value="">Unknown</option>
+            <option value="2020">2020</option><option value="2021">2021</option>
+            <option value="2022">2022</option><option value="2023">2023</option>
+            <option value="2024">2024</option><option value="2025">2025</option>
+            <option value="2026">2026</option>
+          </select>
+        </div>
+        <button class="submit-btn" id="c-submit">Add to Community</button>
+        <div class="status" id="c-status"></div>
+
+        <div class="entries-section">
+          <h3>Community members</h3>
+          <div id="community-list"></div>
         </div>
       </div>
 
@@ -518,7 +558,7 @@ async function apiGet(path) {
 // Load all data
 // =============================================
 async function loadAllData() {
-  await Promise.all([loadGallery(), loadStories(), loadTimeline()]);
+  await Promise.all([loadGallery(), loadStories(), loadTimeline(), loadCommunity()]);
 }
 
 // =============================================
@@ -757,6 +797,83 @@ window.deleteTimeline = async function(index) {
   if (!confirm(`Delete "${timelineItems[index].title}"?`)) return;
   const data = await apiPost('/timeline/delete', { index });
   if (data.success) await loadTimeline();
+};
+
+// =============================================
+// COMMUNITY
+// =============================================
+let communityItems = [];
+
+async function loadCommunity() {
+  try { communityItems = await apiGet('/community'); } catch(e) { communityItems = []; }
+  renderCommunityList();
+}
+
+const roleLabels = { owner: '👑 Owner', admin: '⚡ Admin', mod: '🛡️ Mod', builder: '🔨 Builder', player: '🎮 Player' };
+
+function renderCommunityList() {
+  const list = document.getElementById('community-list');
+  if (communityItems.length === 0) {
+    list.innerHTML = '<div class="empty-list">No community members yet.</div>';
+    return;
+  }
+  list.innerHTML = communityItems.map((item, i) => `
+    <div class="entry-row">
+      <div class="entry-info" style="flex:1">
+        <h4>${item.name}</h4>
+        <p>${roleLabels[item.role] || item.role}${item.joined ? ' · Joined ' + item.joined : ''}${item.bio ? ' · ' + item.bio.substring(0, 50) + (item.bio.length > 50 ? '...' : '') : ''}</p>
+      </div>
+      <div class="entry-actions">
+        <button class="btn-edit" onclick="editCommunity(${i})">Edit</button>
+        <button class="btn-delete" onclick="deleteCommunity(${i})">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('c-submit').addEventListener('click', async () => {
+  const statusEl = document.getElementById('c-status');
+  const name = document.getElementById('c-name').value.trim();
+  if (!name) { showStatus(statusEl, 'Please enter a name.', 'error'); return; }
+
+  document.getElementById('c-submit').disabled = true;
+  showStatus(statusEl, 'Adding...', 'loading');
+
+  try {
+    const data = await apiPost('/community/add', {
+      name,
+      role: document.getElementById('c-role').value,
+      bio: document.getElementById('c-bio').value.trim() || null,
+      joined: document.getElementById('c-joined').value || null,
+    });
+    if (data.success) {
+      showStatus(statusEl, `${name} added to the community!`, 'success');
+      document.getElementById('c-name').value = '';
+      document.getElementById('c-bio').value = '';
+      await loadCommunity();
+    } else { showStatus(statusEl, data.error || 'Failed.', 'error'); }
+  } catch(e) { showStatus(statusEl, `Error: ${e.message}`, 'error'); }
+  document.getElementById('c-submit').disabled = false;
+});
+
+window.editCommunity = function(index) {
+  const item = communityItems[index];
+  showEditModal('Edit Community Member', [
+    { key: 'name', label: 'Player name', value: item.name },
+    { key: 'role', label: 'Role', value: item.role || 'player', type: 'select', options: ['owner','admin','mod','builder','player'] },
+    { key: 'bio', label: 'Short bio', value: item.bio || '', type: 'textarea' },
+    { key: 'joined', label: 'Year joined', value: item.joined || '', type: 'select', options: ['','2020','2021','2022','2023','2024','2025','2026'] },
+  ], async (updates) => {
+    const data = await apiPost('/community/edit', { index, updates });
+    if (data.success) await loadCommunity();
+    return data;
+  });
+};
+
+window.deleteCommunity = async function(index) {
+  if (!confirm(`Remove "${communityItems[index].name}" from the community?`)) return;
+  const data = await apiPost('/community/delete', { index });
+  if (data.success) await loadCommunity();
 };
 
 // =============================================

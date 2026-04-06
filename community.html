@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community — Pandemic Paradise Archive</title>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .role-section {
+    margin-bottom: 48px;
+  }
+
+  .role-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .role-header .role-icon {
+    font-size: 20px;
+  }
+
+  .role-header h2 {
+    font-family: 'Silkscreen', monospace;
+    font-size: 14px;
+    color: var(--text-primary);
+    letter-spacing: 1px;
+  }
+
+  .role-header .role-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  .members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+  }
+
+  .member-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .member-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .member-card:hover {
+    border-color: var(--green-dim);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+
+  .member-card:hover::before {
+    opacity: 1;
+  }
+
+  /* Role-specific accent colors */
+  .member-card[data-role="owner"]::before { background: var(--amber); }
+  .member-card[data-role="admin"]::before { background: #a78bfa; }
+  .member-card[data-role="mod"]::before { background: #60a5fa; }
+  .member-card[data-role="builder"]::before { background: var(--green-primary); }
+  .member-card[data-role="player"]::before { background: var(--text-muted); }
+
+  .member-card .member-name {
+    font-family: 'Silkscreen', monospace;
+    font-size: 14px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .member-card .member-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .member-card[data-role="owner"] .member-meta { color: var(--amber); }
+  .member-card[data-role="admin"] .member-meta { color: #a78bfa; }
+  .member-card[data-role="mod"] .member-meta { color: #60a5fa; }
+  .member-card[data-role="builder"] .member-meta { color: var(--green-primary); }
+
+  .member-card .member-bio {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  /* Stats bar */
+  .community-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 32px 0 48px;
+    flex-wrap: wrap;
+  }
+
+  .community-stat {
+    text-align: center;
+  }
+
+  .community-stat .num {
+    font-family: 'Silkscreen', monospace;
+    font-size: 28px;
+    color: var(--green-primary);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .community-stat .lbl {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* Empty state */
+  .community-empty {
+    text-align: center;
+    padding: 80px 24px;
+    border: 2px dashed var(--border);
+    margin-bottom: 48px;
+  }
+
+  .community-empty .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+  .community-empty h3 { font-family: 'Silkscreen', monospace; font-size: 16px; color: var(--text-secondary); margin-bottom: 8px; }
+  .community-empty p { font-size: 14px; color: var(--text-muted); max-width: 400px; margin: 0 auto; line-height: 1.6; }
+
+  @media (max-width: 600px) {
+    .members-grid { grid-template-columns: 1fr; }
+    .community-stats { gap: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="site-header">
+    <a href="index.html" class="logo">Pandemic Paradise</a>
+    <nav class="site-nav">
+      <a href="timeline.html">Timeline</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="stories.html">Stories</a>
+      <a href="community.html" class="active">Community</a>
+      <a href="the-world.html">The World</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <section class="page-header">
+    <span class="icon">👥</span>
+    <h1>Community</h1>
+    <p>The players, the mods, the builders — everyone who made Pandemic Paradise what it was.</p>
+  </section>
+
+  <div id="community-stats" class="community-stats" style="display:none"></div>
+  <div id="community-content"></div>
+
+  <footer>
+    <p>Built with <span class="heart">♥</span> by the PP community · 2026</p>
+  </footer>
+
+</div>
+
+<script>
+  const API_URL = 'https://pandemicparadise.colbysthickey.workers.dev';
+
+  const roleConfig = {
+    owner:   { icon: '👑', label: 'Owner', plural: 'Owners' },
+    admin:   { icon: '⚡', label: 'Admin', plural: 'Admins' },
+    mod:     { icon: '🛡️', label: 'Moderator', plural: 'Moderators' },
+    builder: { icon: '🔨', label: 'Builder', plural: 'Builders' },
+    player:  { icon: '🎮', label: 'Player', plural: 'Players' },
+  };
+
+  // Display order
+  const roleOrder = ['owner', 'admin', 'mod', 'builder', 'player'];
+
+  async function loadCommunity() {
+    const content = document.getElementById('community-content');
+    const statsEl = document.getElementById('community-stats');
+    let members = [];
+
+    try {
+      const resp = await fetch(`${API_URL}/community`);
+      members = await resp.json();
+    } catch (e) {
+      members = [];
+    }
+
+    if (members.length === 0) {
+      statsEl.style.display = 'none';
+      content.innerHTML = `
+        <div class="community-empty">
+          <div class="icon">👥</div>
+          <h3>Community roster coming soon</h3>
+          <p>The names and faces behind Pandemic Paradise will appear here as we build out the archive.</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Group by role
+    const grouped = {};
+    members.forEach(m => {
+      const role = m.role || 'player';
+      if (!grouped[role]) grouped[role] = [];
+      grouped[role].push(m);
+    });
+
+    // Stats
+    const totalMembers = members.length;
+    const staffCount = members.filter(m => ['owner','admin','mod'].includes(m.role)).length;
+    statsEl.style.display = 'flex';
+    statsEl.innerHTML = `
+      <div class="community-stat">
+        <span class="num">${totalMembers}</span>
+        <span class="lbl">Members</span>
+      </div>
+      <div class="community-stat">
+        <span class="num">${staffCount}</span>
+        <span class="lbl">Staff</span>
+      </div>
+      <div class="community-stat">
+        <span class="num">${Object.keys(grouped).length}</span>
+        <span class="lbl">Roles</span>
+      </div>
+    `;
+
+    // Render sections
+    let html = '';
+
+    roleOrder.forEach(role => {
+      if (!grouped[role] || grouped[role].length === 0) return;
+
+      const config = roleConfig[role] || { icon: '🎮', label: role, plural: role };
+      const members = grouped[role];
+
+      html += `
+        <div class="role-section">
+          <div class="role-header">
+            <span class="role-icon">${config.icon}</span>
+            <h2>${config.plural}</h2>
+            <span class="role-count">${members.length}</span>
+          </div>
+          <div class="members-grid">
+            ${members.map(m => `
+              <div class="member-card" data-role="${role}">
+                <div class="member-name">${m.name}</div>
+                <div class="member-meta">${config.label}${m.joined ? ' · Joined ' + m.joined : ''}</div>
+                ${m.bio ? `<div class="member-bio">${m.bio}</div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    });
+
+    content.innerHTML = html;
+  }
+
+  loadCommunity();
+</script>
+
+</body>
+</html>
