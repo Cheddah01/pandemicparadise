@@ -507,9 +507,12 @@
 
   function openLightbox(data) {
     const images = data.images || (data.image ? [data.image] : []);
+    const files = data.files || [];
     const hasVideo = !!data.videoUrl;
     const ytId = getYouTubeId(data.videoUrl);
-    const totalSlides = images.length + (hasVideo ? 1 : 0);
+    const videoFiles = files.filter(f => f.type === 'video');
+    const otherFiles = files.filter(f => f.type !== 'video');
+    const totalSlides = images.length + videoFiles.length + (hasVideo ? 1 : 0);
     let currentSlide = 0;
 
     const overlay = document.createElement('div');
@@ -526,37 +529,57 @@
     function renderSlide() {
       let mediaHTML = '';
       let counterHTML = '';
+      const navPrev = totalSlides > 1 ? `<div class="lightbox-nav prev" onclick="lbPrev()">←</div>` : '';
+      const navNext = totalSlides > 1 ? `<div class="lightbox-nav next" onclick="lbNext()">→</div>` : '';
 
       if (currentSlide < images.length) {
-        // Image slide
-        mediaHTML = `
-          <div class="lightbox-media">
-            ${totalSlides > 1 ? `<div class="lightbox-nav prev" onclick="lbPrev()">←</div>` : ''}
-            <img src="${images[currentSlide]}" alt="${data.title}">
-            ${totalSlides > 1 ? `<div class="lightbox-nav next" onclick="lbNext()">→</div>` : ''}
-          </div>
-        `;
-      } else {
-        // Video slide
-        mediaHTML = `
-          <div class="lightbox-media">
-            ${totalSlides > 1 ? `<div class="lightbox-nav prev" onclick="lbPrev()">←</div>` : ''}
-            ${ytId
-              ? `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`
-              : `<div style="padding:40px;color:var(--text-muted);font-family:'Space Mono',monospace;font-size:12px"><a href="${data.videoUrl}" target="_blank" style="color:var(--green-primary)">${data.videoUrl}</a></div>`
-            }
-            ${totalSlides > 1 ? `<div class="lightbox-nav next" onclick="lbNext()">→</div>` : ''}
-          </div>
-        `;
+        mediaHTML = `<div class="lightbox-media">${navPrev}<img src="${images[currentSlide]}" alt="${data.title}">${navNext}</div>`;
+      } else if (currentSlide < images.length + videoFiles.length) {
+        const vf = videoFiles[currentSlide - images.length];
+        mediaHTML = `<div class="lightbox-media">${navPrev}<video controls autoplay style="max-width:100%;max-height:70vh"><source src="${vf.url}">Your browser doesn't support this video.</video>${navNext}</div>`;
+      } else if (hasVideo) {
+        mediaHTML = `<div class="lightbox-media">${navPrev}${ytId
+          ? `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`
+          : `<div style="padding:40px;color:var(--text-muted);font-family:'Space Mono',monospace;font-size:12px"><a href="${data.videoUrl}" target="_blank" style="color:var(--green-primary)">${data.videoUrl}</a></div>`
+        }${navNext}</div>`;
       }
 
       if (totalSlides > 1) {
-        counterHTML = `<div class="lightbox-counter">${currentSlide + 1} / ${totalSlides}${currentSlide >= images.length ? ' · Video' : ''}</div>`;
+        let slideLabel = '';
+        if (currentSlide < images.length) slideLabel = '';
+        else if (currentSlide < images.length + videoFiles.length) slideLabel = ' · Video';
+        else slideLabel = ' · YouTube';
+        counterHTML = `<div class="lightbox-counter">${currentSlide + 1} / ${totalSlides}${slideLabel}</div>`;
       }
 
       let metaParts = [];
       if (data.credit) metaParts.push('Submitted by ' + data.credit);
       if (data.year) metaParts.push(data.year);
+
+      let filesHTML = '';
+      if (otherFiles.length > 0) {
+        filesHTML = `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Downloads</div>
+          ${otherFiles.map(f => {
+            const size = f.size > 1048576 ? (f.size / 1048576).toFixed(1) + ' MB' : (f.size / 1024).toFixed(0) + ' KB';
+            return `<a href="${f.url}" download="${f.name}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-card-hover);border:1px solid var(--border);margin-bottom:6px;text-decoration:none;transition:border-color 0.2s ease" onmouseover="this.style.borderColor='var(--green-dim)'" onmouseout="this.style.borderColor='var(--border)'">
+              <span style="font-size:16px">📎</span>
+              <span style="flex:1;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-primary)">${f.name}</span>
+              <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted)">${size}</span>
+              <span style="font-family:'Silkscreen',monospace;font-size:9px;color:var(--green-primary)">↓</span>
+            </a>`;
+          }).join('')}
+        </div>`;
+      }
+
+      // Also show video files as downloads
+      let videoDownloadsHTML = '';
+      if (videoFiles.length > 0) {
+        videoDownloadsHTML = videoFiles.map(f => {
+          const size = f.size > 1048576 ? (f.size / 1048576).toFixed(1) + ' MB' : (f.size / 1024).toFixed(0) + ' KB';
+          return `<a href="${f.url}" download="${f.name}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--border);text-decoration:none;font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);margin-top:8px;transition:border-color 0.2s ease" onmouseover="this.style.borderColor='var(--green-dim)'" onmouseout="this.style.borderColor='var(--border)'">↓ Download ${f.ext.toUpperCase()} (${size})</a>`;
+        }).join('');
+      }
 
       container.innerHTML = `
         ${mediaHTML}
@@ -568,6 +591,8 @@
           </div>
           ${data.caption ? `<p>${data.caption}</p>` : ''}
           ${metaParts.length ? `<div class="lb-meta">${metaParts.join(' · ')}</div>` : ''}
+          ${videoDownloadsHTML}
+          ${filesHTML}
         </div>
       `;
     }

@@ -134,11 +134,11 @@
       <!-- GALLERY -->
       <div class="tab-panel active" id="panel-gallery">
         <div class="field">
-          <label>Images (select multiple)</label>
+          <label>Files (images, videos, schematics, etc.)</label>
           <div class="file-drop" id="file-drop">
-            <input type="file" id="file-input" accept="image/*" multiple>
-            <div class="drop-text">Drop images here or click to browse</div>
-            <div class="drop-hint">PNG, JPG, GIF, WEBP — select multiple files</div>
+            <input type="file" id="file-input" multiple>
+            <div class="drop-text">Drop files here or click to browse</div>
+            <div class="drop-hint">Images, .mov, .mp4, .schematic, .litematic — anything</div>
           </div>
           <div class="preview-row" id="preview-row"></div>
         </div>
@@ -285,28 +285,37 @@ fileDrop.addEventListener('drop', (e) => { e.preventDefault(); fileDrop.classLis
 function handleFiles() { addFiles(fileInput.files); }
 
 function addFiles(fileList) {
-  for (const file of fileList) { if (file.type.startsWith('image/')) selectedFiles.push(file); }
+  for (const file of fileList) { selectedFiles.push(file); }
   renderPreviews();
 }
 
 function renderPreviews() {
   const row = document.getElementById('preview-row');
-  if (selectedFiles.length === 0) { row.innerHTML = ''; fileDrop.classList.remove('has-file'); fileDrop.querySelector('.drop-text').textContent = 'Drop images here or click to browse'; fileDrop.querySelector('.drop-hint').textContent = 'PNG, JPG, GIF, WEBP — select multiple files'; return; }
+  if (selectedFiles.length === 0) { row.innerHTML = ''; fileDrop.classList.remove('has-file'); fileDrop.querySelector('.drop-text').textContent = 'Drop files here or click to browse'; fileDrop.querySelector('.drop-hint').textContent = 'Images, .mov, .mp4, .schematic, .litematic — anything'; return; }
   fileDrop.classList.add('has-file');
-  fileDrop.querySelector('.drop-text').textContent = `${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''} selected`;
+  fileDrop.querySelector('.drop-text').textContent = `${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''} selected`;
   fileDrop.querySelector('.drop-hint').textContent = 'Click to add more';
   row.innerHTML = '';
   selectedFiles.forEach((file, i) => {
     const wrap = document.createElement('div');
     wrap.className = 'preview-thumb-wrap';
-    const img = document.createElement('img');
-    img.className = 'preview-thumb';
-    img.src = URL.createObjectURL(file);
+    if (file.type.startsWith('image/')) {
+      const img = document.createElement('img');
+      img.className = 'preview-thumb';
+      img.src = URL.createObjectURL(file);
+      wrap.appendChild(img);
+    } else {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'preview-thumb';
+      placeholder.style.cssText = 'display:flex;align-items:center;justify-content:center;background:var(--bg-card-hover);font-size:9px;font-family:"Space Mono",monospace;color:var(--text-muted);text-align:center;padding:4px;word-break:break-all;line-height:1.2';
+      const ext = file.name.split('.').pop().toUpperCase();
+      placeholder.textContent = ext;
+      wrap.appendChild(placeholder);
+    }
     const btn = document.createElement('button');
     btn.className = 'preview-remove';
     btn.textContent = '✕';
     btn.onclick = () => { selectedFiles.splice(i, 1); renderPreviews(); };
-    wrap.appendChild(img);
     wrap.appendChild(btn);
     row.appendChild(wrap);
   });
@@ -384,7 +393,7 @@ document.getElementById('g-submit').addEventListener('click', async () => {
   formData.append('year', document.getElementById('g-year').value);
   formData.append('caption', document.getElementById('g-caption').value.trim());
   if (videoUrl) formData.append('videoUrl', videoUrl);
-  selectedFiles.forEach(f => formData.append('images', f));
+  selectedFiles.forEach(f => formData.append('files', f));
 
   try {
     const data = await apiPost('/upload', formData, true);
