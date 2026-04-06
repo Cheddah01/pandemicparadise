@@ -6,6 +6,285 @@
 <title>Gallery — Pandemic Paradise Archive</title>
 <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Space+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+  /* Search & controls bar */
+  .gallery-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 24px 0 8px;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 10px 16px 10px 36px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-family: 'Lora', Georgia, serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  .search-box input:focus { border-color: var(--green-dim); }
+
+  .search-box input::placeholder { color: var(--text-muted); }
+
+  .search-box::before {
+    content: '🔍';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    opacity: 0.5;
+  }
+
+  .sort-select {
+    padding: 10px 32px 10px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2355556a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+
+  .sort-select option { background: var(--bg-deep); }
+
+  .results-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    padding: 8px 0;
+  }
+
+  /* Album indicator */
+  .album-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    background: rgba(0,0,0,0.7);
+    color: var(--text-primary);
+    border: 1px solid rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Video thumbnail */
+  .video-thumb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--bg-card-hover);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .video-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .video-thumb .play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px;
+    height: 48px;
+    background: rgba(0,0,0,0.7);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s ease;
+  }
+
+  .gallery-item:hover .play-btn {
+    background: rgba(0,0,0,0.9);
+    border-color: var(--green-primary);
+    box-shadow: 0 0 16px var(--green-glow);
+  }
+
+  /* Lightbox styles */
+  .lightbox-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 24px;
+    overflow-y: auto;
+  }
+
+  .lightbox-container {
+    max-width: 900px;
+    width: 100%;
+  }
+
+  .lightbox-media {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    position: relative;
+  }
+
+  .lightbox-media img {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    display: block;
+  }
+
+  .lightbox-media iframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: none;
+  }
+
+  /* Album navigation */
+  .lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    background: rgba(0,0,0,0.7);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2;
+  }
+
+  .lightbox-nav:hover {
+    background: rgba(0,0,0,0.9);
+    border-color: var(--green-primary);
+  }
+
+  .lightbox-nav.prev { left: 12px; }
+  .lightbox-nav.next { right: 12px; }
+
+  .lightbox-counter {
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    padding: 8px 0;
+    background: #000;
+  }
+
+  .lightbox-info {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 20px 24px;
+  }
+
+  .lightbox-info .lb-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .lightbox-info h3 {
+    font-family: 'Silkscreen', monospace;
+    font-size: 14px;
+    color: var(--text-primary);
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .lightbox-info .lb-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border: 1px solid var(--green-dim);
+    color: var(--green-primary);
+    background: var(--green-glow);
+  }
+
+  .lightbox-info p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+  }
+
+  .lightbox-info .lb-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .lightbox-close {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    background: rgba(0,0,0,0.7);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1001;
+    transition: all 0.3s ease;
+  }
+
+  .lightbox-close:hover {
+    background: rgba(0,0,0,0.9);
+    border-color: #f87171;
+  }
+
+  @media (max-width: 600px) {
+    .gallery-controls { flex-direction: column; }
+    .search-box { min-width: 100%; }
+    .lightbox-nav { width: 30px; height: 30px; font-size: 13px; }
+  }
+</style>
 </head>
 <body>
 
@@ -29,6 +308,18 @@
     <p>Screenshots, videos, and builds from the world that was. Everything the community has preserved.</p>
   </section>
 
+  <div class="gallery-controls">
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="Search titles, captions, players...">
+    </div>
+    <select class="sort-select" id="sort-select">
+      <option value="newest">Newest first</option>
+      <option value="oldest">Oldest first</option>
+      <option value="az">A → Z</option>
+      <option value="za">Z → A</option>
+    </select>
+  </div>
+
   <div class="gallery-filters">
     <button class="filter-btn active" data-filter="all">All</button>
     <button class="filter-btn" data-filter="screenshot">Screenshots</button>
@@ -37,6 +328,7 @@
     <button class="filter-btn" data-filter="other">Other</button>
   </div>
 
+  <div class="results-count" id="results-count"></div>
   <div class="gallery-grid" id="gallery-grid"></div>
 
   <footer>
@@ -46,13 +338,12 @@
 </div>
 
 <script>
-  // =============================================
-  // CONFIG — Update this with your worker URL
-  // =============================================
   const API_URL = 'https://pandemicparadise.colbysthickey.workers.dev';
 
   let allItems = [];
   let activeFilter = 'all';
+  let searchQuery = '';
+  let sortMode = 'newest';
 
   async function loadGallery() {
     try {
@@ -64,47 +355,113 @@
     renderGallery();
   }
 
+  function getFilteredItems() {
+    let items = [...allItems];
+
+    // Filter by type
+    if (activeFilter !== 'all') {
+      items = items.filter(item => item.type === activeFilter);
+    }
+
+    // Search
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      items = items.filter(item =>
+        (item.title && item.title.toLowerCase().includes(q)) ||
+        (item.caption && item.caption.toLowerCase().includes(q)) ||
+        (item.credit && item.credit.toLowerCase().includes(q)) ||
+        (item.year && item.year.toString().includes(q))
+      );
+    }
+
+    // Sort
+    switch (sortMode) {
+      case 'newest':
+        items.sort((a, b) => new Date(b.added || 0) - new Date(a.added || 0));
+        break;
+      case 'oldest':
+        items.sort((a, b) => new Date(a.added || 0) - new Date(b.added || 0));
+        break;
+      case 'az':
+        items.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+        break;
+      case 'za':
+        items.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+        break;
+    }
+
+    return items;
+  }
+
+  function getYouTubeId(url) {
+    if (!url) return null;
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
+  }
+
   function renderGallery() {
     const grid = document.getElementById('gallery-grid');
-    const filtered = activeFilter === 'all'
-      ? allItems
-      : allItems.filter(item => item.type === activeFilter);
+    const countEl = document.getElementById('results-count');
+    const filtered = getFilteredItems();
+
+    countEl.textContent = `${filtered.length} ${filtered.length === 1 ? 'item' : 'items'}${searchQuery ? ` matching "${searchQuery}"` : ''}`;
 
     if (filtered.length === 0) {
       grid.innerHTML = `
         <div class="gallery-empty">
-          <div class="icon">📷</div>
-          <h3>The archive is waiting</h3>
-          <p>Screenshots, videos, and builds will appear here as the community submits them. If you have anything from the old server, now's the time.</p>
+          <div class="icon">${searchQuery ? '🔍' : '📷'}</div>
+          <h3>${searchQuery ? 'No results' : 'The archive is waiting'}</h3>
+          <p>${searchQuery ? 'Try a different search term.' : 'Screenshots, videos, and builds will appear here as the community submits them.'}</p>
         </div>
       `;
       return;
     }
 
-    grid.innerHTML = filtered.map((item, i) => {
-      // Find the real index in allItems
+    grid.innerHTML = filtered.map(item => {
       const realIndex = allItems.indexOf(item);
+      const imageCount = item.images ? item.images.length : (item.image ? 1 : 0);
+      const hasVideo = !!item.videoUrl;
+      const ytId = getYouTubeId(item.videoUrl);
+      const thumbSrc = item.image || (ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : null);
+
+      let thumbHTML;
+      if (hasVideo && !item.image) {
+        // Video-only entry
+        thumbHTML = `
+          <div class="video-thumb">
+            ${ytId ? `<img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt="${item.title}">` : ''}
+            <div class="play-btn">▶</div>
+          </div>
+        `;
+      } else {
+        thumbHTML = `
+          <div class="thumb">
+            ${thumbSrc
+              ? `<img src="${thumbSrc}" alt="${item.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'placeholder\\'>📷</div>'">`
+              : '<div class="placeholder">📷</div>'
+            }
+            <span class="tag">${item.type}</span>
+            ${imageCount > 1 ? `<span class="album-badge">📁 ${imageCount}</span>` : ''}
+            ${hasVideo && item.image ? `<span class="album-badge" style="bottom:8px;left:8px;right:auto">▶ Video</span>` : ''}
+          </div>
+        `;
+      }
+
       return `
-      <div class="gallery-item" data-type="${item.type}" data-index="${realIndex}">
-        <div class="thumb">
-          ${item.type === 'video'
-            ? '<div class="placeholder">▶️</div>'
-            : `<img src="${item.image}" alt="${item.title}" loading="lazy"
-                onerror="this.parentElement.innerHTML='<div class=\\'placeholder\\'>📷</div>'">`
-          }
-          <span class="tag">${item.type}</span>
-        </div>
-        <div class="info">
-          <h3>${item.title}</h3>
-          ${item.caption ? `<p>${item.caption}</p>` : ''}
-          <div class="meta">
-            ${item.credit ? `Submitted by ${item.credit}` : ''}
-            ${item.credit && item.year ? ' · ' : ''}
-            ${item.year || ''}
+        <div class="gallery-item" data-type="${item.type}" data-index="${realIndex}">
+          ${thumbHTML}
+          <div class="info">
+            <h3>${item.title}</h3>
+            ${item.caption ? `<p>${item.caption}</p>` : ''}
+            <div class="meta">
+              ${item.credit ? `Submitted by ${item.credit}` : ''}
+              ${item.credit && item.year ? ' · ' : ''}
+              ${item.year || ''}
+            </div>
           </div>
         </div>
-      </div>
-    `}).join('');
+      `;
+    }).join('');
   }
 
   // Filter buttons
@@ -117,65 +474,136 @@
     });
   });
 
-  // Lightbox with details
+  // Search
+  let searchTimeout;
+  document.getElementById('search-input').addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      searchQuery = e.target.value.trim();
+      renderGallery();
+    }, 200);
+  });
+
+  // Sort
+  document.getElementById('sort-select').addEventListener('change', (e) => {
+    sortMode = e.target.value;
+    renderGallery();
+  });
+
+  // Lightbox
   document.getElementById('gallery-grid').addEventListener('click', (e) => {
     const item = e.target.closest('.gallery-item');
     if (!item) return;
-    const img = item.querySelector('img');
-    if (!img) return;
 
     const index = parseInt(item.dataset.index);
     const data = allItems[index];
     if (!data) return;
 
+    openLightbox(data);
+  });
+
+  function openLightbox(data) {
+    const images = data.images || (data.image ? [data.image] : []);
+    const hasVideo = !!data.videoUrl;
+    const ytId = getYouTubeId(data.videoUrl);
+    const totalSlides = images.length + (hasVideo ? 1 : 0);
+    let currentSlide = 0;
+
     const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;z-index:1000;padding:24px;overflow-y:auto;';
+    overlay.className = 'lightbox-overlay';
+
+    const closeBtn = document.createElement('div');
+    closeBtn.className = 'lightbox-close';
+    closeBtn.textContent = '✕';
+    closeBtn.addEventListener('click', closeLightbox);
 
     const container = document.createElement('div');
-    container.style.cssText = 'max-width:900px;width:100%;display:flex;flex-direction:column;gap:0;';
+    container.className = 'lightbox-container';
 
-    const imgWrap = document.createElement('div');
-    imgWrap.style.cssText = 'width:100%;display:flex;align-items:center;justify-content:center;background:#000;';
-    const fullImg = document.createElement('img');
-    fullImg.src = img.src;
-    fullImg.style.cssText = 'max-width:100%;max-height:70vh;object-fit:contain;display:block;';
-    imgWrap.appendChild(fullImg);
+    function renderSlide() {
+      let mediaHTML = '';
+      let counterHTML = '';
 
-    const infoBar = document.createElement('div');
-    infoBar.style.cssText = 'background:#13131a;border:1px solid #1e1e2a;border-top:none;padding:20px 24px;';
+      if (currentSlide < images.length) {
+        // Image slide
+        mediaHTML = `
+          <div class="lightbox-media">
+            ${totalSlides > 1 ? `<div class="lightbox-nav prev" onclick="lbPrev()">←</div>` : ''}
+            <img src="${images[currentSlide]}" alt="${data.title}">
+            ${totalSlides > 1 ? `<div class="lightbox-nav next" onclick="lbNext()">→</div>` : ''}
+          </div>
+        `;
+      } else {
+        // Video slide
+        mediaHTML = `
+          <div class="lightbox-media">
+            ${totalSlides > 1 ? `<div class="lightbox-nav prev" onclick="lbPrev()">←</div>` : ''}
+            ${ytId
+              ? `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`
+              : `<div style="padding:40px;color:var(--text-muted);font-family:'Space Mono',monospace;font-size:12px"><a href="${data.videoUrl}" target="_blank" style="color:var(--green-primary)">${data.videoUrl}</a></div>`
+            }
+            ${totalSlides > 1 ? `<div class="lightbox-nav next" onclick="lbNext()">→</div>` : ''}
+          </div>
+        `;
+      }
 
-    let metaParts = [];
-    if (data.type) metaParts.push('<span style="font-family:\'Space Mono\',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border:1px solid #22633b;color:#4ade80;background:rgba(74,222,128,0.15)">' + data.type + '</span>');
+      if (totalSlides > 1) {
+        counterHTML = `<div class="lightbox-counter">${currentSlide + 1} / ${totalSlides}${currentSlide >= images.length ? ' · Video' : ''}</div>`;
+      }
 
-    let detailParts = [];
-    if (data.credit) detailParts.push('Submitted by ' + data.credit);
-    if (data.year) detailParts.push(data.year);
+      let metaParts = [];
+      if (data.credit) metaParts.push('Submitted by ' + data.credit);
+      if (data.year) metaParts.push(data.year);
 
-    infoBar.innerHTML = `
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:${data.caption ? '10' : '0'}px;flex-wrap:wrap">
-        <h3 style="font-family:'Silkscreen',monospace;font-size:14px;color:#e8e8ed;flex:1;min-width:200px">${data.title}</h3>
-        ${metaParts.join('')}
-      </div>
-      ${data.caption ? `<p style="font-size:14px;line-height:1.7;color:#8888a0;margin-bottom:10px">${data.caption}</p>` : ''}
-      ${detailParts.length ? `<div style="font-family:'Space Mono',monospace;font-size:11px;color:#55556a">${detailParts.join(' · ')}</div>` : ''}
-    `;
+      container.innerHTML = `
+        ${mediaHTML}
+        ${counterHTML}
+        <div class="lightbox-info">
+          <div class="lb-header">
+            <h3>${data.title}</h3>
+            <span class="lb-badge">${data.type}</span>
+          </div>
+          ${data.caption ? `<p>${data.caption}</p>` : ''}
+          ${metaParts.length ? `<div class="lb-meta">${metaParts.join(' · ')}</div>` : ''}
+        </div>
+      `;
+    }
 
-    container.appendChild(imgWrap);
-    container.appendChild(infoBar);
-    overlay.appendChild(container);
+    window.lbPrev = () => {
+      currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+      renderSlide();
+    };
 
-    overlay.addEventListener('click', (ev) => {
-      if (ev.target === overlay) overlay.remove();
+    window.lbNext = () => {
+      currentSlide = (currentSlide + 1) % totalSlides;
+      renderSlide();
+    };
+
+    function closeLightbox() {
+      overlay.remove();
+      closeBtn.remove();
+      document.removeEventListener('keydown', handleKey);
+      delete window.lbPrev;
+      delete window.lbNext;
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft' && totalSlides > 1) window.lbPrev();
+      if (e.key === 'ArrowRight' && totalSlides > 1) window.lbNext();
+    }
+
+    document.addEventListener('keydown', handleKey);
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeLightbox();
     });
 
-    // Close on Escape
-    const closeOnEsc = (ev) => {
-      if (ev.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', closeOnEsc); }
-    };
-    document.addEventListener('keydown', closeOnEsc);
-
+    renderSlide();
+    overlay.appendChild(container);
     document.body.appendChild(overlay);
-  });
+    document.body.appendChild(closeBtn);
+  }
 
   loadGallery();
 </script>
