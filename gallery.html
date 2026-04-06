@@ -30,49 +30,104 @@
   </section>
 
   <div class="gallery-filters">
-    <button class="filter-btn active">All</button>
-    <button class="filter-btn">Screenshots</button>
-    <button class="filter-btn">Builds</button>
-    <button class="filter-btn">Videos</button>
-    <button class="filter-btn">Other</button>
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="screenshot">Screenshots</button>
+    <button class="filter-btn" data-filter="build">Builds</button>
+    <button class="filter-btn" data-filter="video">Videos</button>
+    <button class="filter-btn" data-filter="other">Other</button>
   </div>
 
-  <div class="gallery-grid">
-
-    <!-- ===========================================
-         HOW TO ADD IMAGES
-         ===========================================
-         Copy this block for each new gallery item.
-         Put your image files in an "images/" folder.
-         Replace the placeholder div with an <img> tag.
-
-         <div class="gallery-item">
-           <div class="thumb">
-             <img src="images/your-screenshot.png" alt="Description of the image">
-             <span class="tag">Screenshot</span>
-           </div>
-           <div class="info">
-             <h3>Title of the image</h3>
-             <p>Short description or caption.</p>
-             <div class="meta">Submitted by PlayerName · 2020</div>
-           </div>
-         </div>
-         =========================================== -->
-
-    <!-- Empty state — remove this section once you start adding images -->
-    <div class="gallery-empty">
-      <div class="icon">📷</div>
-      <h3>The archive is waiting</h3>
-      <p>Screenshots, videos, and builds will appear here as the community submits them. If you have anything from the old server, now's the time.</p>
-    </div>
-
-  </div>
+  <div class="gallery-grid" id="gallery-grid"></div>
 
   <footer>
     <p>Built with <span class="heart">♥</span> by the PP community · 2026</p>
   </footer>
 
 </div>
+
+<script>
+  let allItems = [];
+  let activeFilter = 'all';
+
+  async function loadGallery() {
+    try {
+      const response = await fetch('gallery-data.json');
+      allItems = await response.json();
+    } catch (e) {
+      allItems = [];
+    }
+    renderGallery();
+  }
+
+  function renderGallery() {
+    const grid = document.getElementById('gallery-grid');
+    const filtered = activeFilter === 'all'
+      ? allItems
+      : allItems.filter(item => item.type === activeFilter);
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `
+        <div class="gallery-empty">
+          <div class="icon">📷</div>
+          <h3>The archive is waiting</h3>
+          <p>Screenshots, videos, and builds will appear here as the community submits them. If you have anything from the old server, now's the time.</p>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(item => `
+      <div class="gallery-item" data-type="${item.type}">
+        <div class="thumb">
+          ${item.type === 'video'
+            ? '<div class="placeholder">▶️</div>'
+            : `<img src="${item.image}" alt="${item.title}" loading="lazy"
+                onerror="this.parentElement.innerHTML='<div class=\\'placeholder\\'>📷</div>'">`
+          }
+          <span class="tag">${item.type}</span>
+        </div>
+        <div class="info">
+          <h3>${item.title}</h3>
+          ${item.caption ? `<p>${item.caption}</p>` : ''}
+          <div class="meta">
+            ${item.credit ? `Submitted by ${item.credit}` : ''}
+            ${item.credit && item.year ? ' · ' : ''}
+            ${item.year || ''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      renderGallery();
+    });
+  });
+
+  // Lightbox
+  document.getElementById('gallery-grid').addEventListener('click', (e) => {
+    const item = e.target.closest('.gallery-item');
+    if (!item) return;
+    const img = item.querySelector('img');
+    if (!img) return;
+
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:1000;cursor:pointer;padding:24px;';
+    const fullImg = document.createElement('img');
+    fullImg.src = img.src;
+    fullImg.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;';
+    overlay.appendChild(fullImg);
+    overlay.addEventListener('click', () => overlay.remove());
+    document.body.appendChild(overlay);
+  });
+
+  loadGallery();
+</script>
 
 </body>
 </html>
