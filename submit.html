@@ -190,7 +190,11 @@
   fileDrop.addEventListener('drop', (e) => { e.preventDefault(); fileDrop.classList.remove('dragover'); if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
 
   function addFiles(fileList) {
-    for (const file of fileList) { selectedFiles.push(file); }
+    const MAX_SIZE = 50 * 1024 * 1024;
+    for (const file of fileList) {
+      if (file.size > MAX_SIZE) { alert(`"${file.name}" exceeds 50 MB limit and was skipped.`); continue; }
+      selectedFiles.push(file);
+    }
     renderPreviews();
   }
 
