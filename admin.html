@@ -196,9 +196,10 @@
           <label>Image (optional)</label>
           <div class="file-drop" id="t-file-drop" style="padding:20px">
             <input type="file" id="t-file-input" accept="image/*">
-            <div class="drop-text" style="font-size:11px">Add an image for this event</div>
-            <div class="drop-hint">Optional — events without images are fine</div>
+            <div class="drop-text" id="t-drop-text" style="font-size:11px">Add an image for this event</div>
+            <div class="drop-hint" id="t-drop-hint">Optional — events without images are fine</div>
           </div>
+          <div id="t-preview-row" style="margin-top:8px"></div>
         </div>
         <div class="field"><label>Event title</label><input type="text" id="t-title" placeholder="Server opens for the first time"></div>
         <div class="field"><label>Date</label><input type="date" id="t-date"></div>
@@ -306,6 +307,30 @@ function renderPreviews() {
 
 function resetFileInput() { selectedFiles = []; renderPreviews(); fileInput.value = ''; }
 
+// Timeline image preview
+const tFileInput = document.getElementById('t-file-input');
+const tFileDrop = document.getElementById('t-file-drop');
+tFileInput.addEventListener('change', () => {
+  const file = tFileInput.files[0];
+  const previewRow = document.getElementById('t-preview-row');
+  if (!file) { previewRow.innerHTML = ''; tFileDrop.classList.remove('has-file'); document.getElementById('t-drop-text').textContent = 'Add an image for this event'; document.getElementById('t-drop-hint').textContent = 'Optional — events without images are fine'; return; }
+  tFileDrop.classList.add('has-file');
+  document.getElementById('t-drop-text').textContent = file.name;
+  document.getElementById('t-drop-hint').textContent = `${(file.size / 1024).toFixed(0)} KB — click to change`;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    previewRow.innerHTML = `<div class="preview-thumb-wrap"><img class="preview-thumb" src="${e.target.result}"><button class="preview-remove" onclick="clearTimelineImage()">✕</button></div>`;
+  };
+  reader.readAsDataURL(file);
+});
+window.clearTimelineImage = function() {
+  tFileInput.value = '';
+  document.getElementById('t-preview-row').innerHTML = '';
+  tFileDrop.classList.remove('has-file');
+  document.getElementById('t-drop-text').textContent = 'Add an image for this event';
+  document.getElementById('t-drop-hint').textContent = 'Optional — events without images are fine';
+};
+
 // API helpers
 async function apiPost(path, body, isFormData = false) {
   const headers = { 'X-Admin-Pin': currentPin };
@@ -406,20 +431,19 @@ document.getElementById('t-submit').addEventListener('click', async () => {
   if (!title) { showStatus(statusEl, 'Please enter a title.', 'error'); return; }
   document.getElementById('t-submit').disabled = true; showStatus(statusEl, 'Adding...', 'loading');
   try {
-    const tFileInput = document.getElementById('t-file-input');
     const formData = new FormData();
     formData.append('title', title);
     formData.append('date', document.getElementById('t-date').value || '');
     formData.append('type', document.getElementById('t-type').value);
     formData.append('era', document.getElementById('t-era').value.trim() || '');
     formData.append('description', document.getElementById('t-desc').value.trim() || '');
-    if (tFileInput.files[0]) formData.append('image', tFileInput.files[0]);
+    if (document.getElementById('t-file-input').files[0]) formData.append('image', document.getElementById('t-file-input').files[0]);
     const data = await apiPost('/timeline/add', formData, true);
-    if (data.success) { showStatus(statusEl, `"${title}" added to timeline!`, 'success'); document.getElementById('t-title').value = ''; document.getElementById('t-date').value = ''; document.getElementById('t-desc').value = ''; document.getElementById('t-era').value = ''; tFileInput.value = ''; document.getElementById('t-file-drop').classList.remove('has-file'); await loadTimeline(); } else { showStatus(statusEl, data.error || 'Failed.', 'error'); }
+    if (data.success) { showStatus(statusEl, `"${title}" added to timeline!`, 'success'); document.getElementById('t-title').value = ''; document.getElementById('t-date').value = ''; document.getElementById('t-desc').value = ''; document.getElementById('t-era').value = ''; clearTimelineImage(); await loadTimeline(); } else { showStatus(statusEl, data.error || 'Failed.', 'error'); }
   } catch(e) { showStatus(statusEl, `Error: ${e.message}`, 'error'); }
   document.getElementById('t-submit').disabled = false;
 });
-window.editTimeline = function(index) { const item = timelineItems[index]; showEditModal('Edit Timeline Event', [{ key: 'title', label: 'Title', value: item.title },{ key: 'date', label: 'Date', value: item.date || '', type: 'date' },{ key: 'type', label: 'Type', value: item.type || 'event', type: 'select', options: ['event','milestone','update','era'] },{ key: 'era', label: 'Era name', value: item.era || '' },{ key: 'description', label: 'Description', value: item.description || '', type: 'textarea' }], async (updates) => { const data = await apiPost('/timeline/edit', { index, updates }); if (data.success) await loadTimeline(); return data; }); };
+window.editTimeline = function(index) { const item = timelineItems[index]; showEditModal('Edit Timeline Event', [{ key: 'title', label: 'Title', value: item.title },{ key: 'date', label: 'Date', value: item.date || '', type: 'date' },{ key: 'type', label: 'Type', value: item.type || 'event', type: 'select', options: ['event','milestone','update','era'] },{ key: 'era', label: 'Era name', value: item.era || '' },{ key: 'description', label: 'Description', value: item.description || '', type: 'textarea' },{ key: 'image', label: 'Image URL (paste or leave empty)', value: item.image || '' }], async (updates) => { if (updates.image === '') updates.image = null; const data = await apiPost('/timeline/edit', { index, updates }); if (data.success) await loadTimeline(); return data; }); };
 window.deleteTimeline = async function(index) { if (!confirm(`Delete "${timelineItems[index].title}"?`)) return; const data = await apiPost('/timeline/delete', { index }); if (data.success) await loadTimeline(); };
 
 // COMMUNITY
