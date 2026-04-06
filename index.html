@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pandemic Paradise — Archive</title>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0a0a0f;
+    --bg-card: #13131a;
+    --bg-card-hover: #1a1a24;
+    --green-primary: #4ade80;
+    --green-dim: #22633b;
+    --green-glow: rgba(74, 222, 128, 0.15);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245, 158, 11, 0.2);
+    --text-primary: #e8e8ed;
+    --text-secondary: #8888a0;
+    --text-muted: #55556a;
+    --border: #1e1e2a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'Lora', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Starfield background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 30% 70%, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.2), transparent),
+      radial-gradient(1px 1px at 70% 40%, rgba(255,255,255,0.35), transparent),
+      radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.25), transparent),
+      radial-gradient(1px 1px at 15% 55%, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1px 1px at 85% 15%, rgba(255,255,255,0.2), transparent),
+      radial-gradient(1px 1px at 45% 90%, rgba(255,255,255,0.15), transparent),
+      radial-gradient(1.5px 1.5px at 25% 35%, rgba(74, 222, 128, 0.4), transparent),
+      radial-gradient(1.5px 1.5px at 65% 60%, rgba(245, 158, 11, 0.3), transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 100px 0 80px;
+    position: relative;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--green-dim), transparent);
+  }
+
+  .server-badge {
+    display: inline-block;
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--green-primary);
+    background: var(--green-glow);
+    border: 1px solid var(--green-dim);
+    padding: 6px 18px;
+    margin-bottom: 32px;
+    animation: fadeInDown 0.8s ease-out;
+  }
+
+  .hero h1 {
+    font-family: 'Silkscreen', monospace;
+    font-size: clamp(36px, 7vw, 64px);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 8px;
+    background: linear-gradient(180deg, #ffffff 0%, var(--green-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeInUp 0.8s ease-out;
+  }
+
+  .hero .subtitle {
+    font-family: 'Silkscreen', monospace;
+    font-size: clamp(14px, 2.5vw, 18px);
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+    animation: fadeInUp 0.8s ease-out 0.15s both;
+  }
+
+  .hero .description {
+    font-size: 18px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    animation: fadeInUp 0.8s ease-out 0.3s both;
+  }
+
+  .hero .description em {
+    color: var(--text-primary);
+    font-style: italic;
+  }
+
+  .years {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 48px 0 0;
+    animation: fadeInUp 0.8s ease-out 0.45s both;
+  }
+
+  .years .year {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .years .line {
+    flex: 0 0 120px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--green-dim), var(--amber), var(--green-dim));
+    position: relative;
+  }
+
+  .years .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green-primary);
+    box-shadow: 0 0 8px var(--green-primary);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  /* Nav */
+  nav {
+    padding: 60px 0 40px;
+  }
+
+  nav h2 {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .nav-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+  }
+
+  .nav-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .nav-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--green-primary);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .nav-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--green-dim);
+    transform: translateY(-2px);
+  }
+
+  .nav-card:hover::before {
+    opacity: 1;
+  }
+
+  .nav-card .icon {
+    font-size: 22px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .nav-card h3 {
+    font-family: 'Silkscreen', monospace;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+
+  .nav-card p {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+  }
+
+  /* Stats */
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    padding: 48px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin: 40px 0;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat .number {
+    font-family: 'Silkscreen', monospace;
+    font-size: 32px;
+    color: var(--green-primary);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .stat .label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* Stories preview */
+  .stories-preview {
+    padding: 48px 0 80px;
+  }
+
+  .stories-preview h2 {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    text-align: center;
+  }
+
+  .story-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 32px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .story-card::before {
+    content: '"';
+    font-family: 'Lora', serif;
+    font-size: 64px;
+    color: var(--green-dim);
+    position: absolute;
+    top: 12px;
+    left: 20px;
+    line-height: 1;
+  }
+
+  .story-card blockquote {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding-left: 32px;
+  }
+
+  .story-card .attribution {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 16px;
+    padding-left: 32px;
+  }
+
+  .story-card .attribution span {
+    color: var(--amber);
+  }
+
+  /* Call to action */
+  .cta {
+    text-align: center;
+    padding: 60px 0 100px;
+    border-top: 1px solid var(--border);
+  }
+
+  .cta h2 {
+    font-family: 'Silkscreen', monospace;
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+  }
+
+  .cta p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 500px;
+    margin: 0 auto 32px;
+    line-height: 1.7;
+  }
+
+  .cta-button {
+    display: inline-block;
+    font-family: 'Silkscreen', monospace;
+    font-size: 13px;
+    letter-spacing: 1px;
+    padding: 14px 36px;
+    background: transparent;
+    border: 1px solid var(--green-primary);
+    color: var(--green-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  .cta-button:hover {
+    background: var(--green-glow);
+    box-shadow: 0 0 20px var(--green-glow);
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 40px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  footer p {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+
+  footer .heart {
+    color: var(--amber);
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .hero { padding: 60px 0 50px; }
+    .stats { gap: 32px; }
+    .nav-grid { grid-template-columns: 1fr; }
+    .story-card { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <section class="hero">
+    <div class="server-badge">Minecraft Server Archive</div>
+    <h1>Pandemic Paradise</h1>
+    <div class="subtitle">2020 — 2026</div>
+    <p class="description">
+      A Minecraft server born in lockdown that became something bigger than blocks.
+      <em>This is the archive of everything we built, everyone who showed up, and the world we lost.</em>
+    </p>
+    <div class="years">
+      <span class="year">2020</span>
+      <div class="line"></div>
+      <div class="dot"></div>
+      <div class="line"></div>
+      <span class="year">2026</span>
+    </div>
+  </section>
+
+  <nav>
+    <h2>Explore the Archive</h2>
+    <div class="nav-grid">
+      <a class="nav-card" href="#timeline">
+        <span class="icon">⏳</span>
+        <h3>Timeline</h3>
+        <p>Key moments from opening day through every era of the server.</p>
+      </a>
+      <a class="nav-card" href="#gallery">
+        <span class="icon">📸</span>
+        <h3>Gallery</h3>
+        <p>Screenshots, videos, and builds preserved from the world that was.</p>
+      </a>
+      <a class="nav-card" href="#stories">
+        <span class="icon">💬</span>
+        <h3>Stories</h3>
+        <p>Memories and reflections from the people who called it home.</p>
+      </a>
+      <a class="nav-card" href="#community">
+        <span class="icon">👥</span>
+        <h3>Community</h3>
+        <p>The players, the mods, the builders, and the names you remember.</p>
+      </a>
+      <a class="nav-card" href="#the-world">
+        <span class="icon">🗺️</span>
+        <h3>The World</h3>
+        <p>A tribute to the world file we lost, and everything that was in it.</p>
+      </a>
+      <a class="nav-card" href="#about">
+        <span class="icon">🌿</span>
+        <h3>About</h3>
+        <p>How a Roblox stream and a pandemic created something unforgettable.</p>
+      </a>
+    </div>
+  </nav>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="number">6</span>
+      <span class="label">Years</span>
+    </div>
+    <div class="stat">
+      <span class="number">—</span>
+      <span class="label">Players</span>
+    </div>
+    <div class="stat">
+      <span class="number">—</span>
+      <span class="label">Builds</span>
+    </div>
+    <div class="stat">
+      <span class="number">1</span>
+      <span class="label">Lost World</span>
+    </div>
+  </div>
+
+  <section class="stories-preview">
+    <h2>From the Players</h2>
+    <div class="story-card">
+      <blockquote>
+        Stories from the community coming soon. If you played on Pandemic Paradise, we'd love to hear from you.
+      </blockquote>
+    </div>
+  </section>
+
+  <section class="cta">
+    <h2>Were you there?</h2>
+    <p>If you played on Pandemic Paradise, we want your screenshots, videos, and stories. Help us build this archive.</p>
+    <a class="cta-button" href="#">Submit Your Memories</a>
+  </section>
+
+  <footer>
+    <p>Built with <span class="heart">♥</span> by the PP community · 2026</p>
+  </footer>
+
+</div>
+
+</body>
+</html>
