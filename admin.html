@@ -128,6 +128,7 @@
         <button class="tab" data-tab="stories">💬 Stories</button>
         <button class="tab" data-tab="timeline">⏳ Timeline</button>
         <button class="tab" data-tab="community">👥 Community</button>
+        <button class="tab" data-tab="pending">📥 Pending</button>
       </div>
 
       <!-- GALLERY -->
@@ -210,6 +211,16 @@
         <div class="status" id="c-status"></div>
         <div class="entries-section"><h3>Community members</h3><div id="community-list"></div></div>
       </div>
+
+      <!-- PENDING -->
+      <div class="tab-panel" id="panel-pending">
+        <div style="background:var(--bg-card);border:1px solid var(--border);padding:20px;margin-bottom:24px">
+          <p style="font-size:14px;color:var(--text-secondary);line-height:1.6">Public submissions appear here for review. Approve to add them to the archive, or reject to discard.</p>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:8px">Share this link with your community: <span style="color:var(--green-primary)">yoursite.com/submit.html</span></p>
+        </div>
+        <div class="entries-section"><h3 id="pending-header">Pending submissions</h3><div id="pending-list"></div></div>
+      </div>
+
     </div>
   </div>
   <footer><p>Built with <span class="heart">♥</span> by the PP community · 2026</p></footer>
@@ -295,7 +306,7 @@ async function apiPost(path, body, isFormData = false) {
 }
 async function apiGet(path) { const resp = await fetch(`${API_URL}${path}`); return resp.json(); }
 
-async function loadAllData() { await Promise.all([loadGallery(), loadStories(), loadTimeline(), loadCommunity()]); }
+async function loadAllData() { await Promise.all([loadGallery(), loadStories(), loadTimeline(), loadCommunity(), loadPending()]); }
 
 // GALLERY
 let galleryItems = [];
@@ -409,6 +420,38 @@ document.getElementById('c-submit').addEventListener('click', async () => {
 });
 window.editCommunity = function(index) { const item = communityItems[index]; showEditModal('Edit Community Member', [{ key: 'name', label: 'Player name', value: item.name },{ key: 'role', label: 'Role', value: item.role || 'player', type: 'select', options: ['owner','admin','mod','builder','player'] },{ key: 'bio', label: 'Short bio', value: item.bio || '', type: 'textarea' },{ key: 'joined', label: 'Year joined', value: item.joined || '', type: 'select', options: ['','2020','2021','2022','2023','2024','2025','2026'] }], async (updates) => { const data = await apiPost('/community/edit', { index, updates }); if (data.success) await loadCommunity(); return data; }); };
 window.deleteCommunity = async function(index) { if (!confirm(`Remove "${communityItems[index].name}"?`)) return; const data = await apiPost('/community/delete', { index }); if (data.success) await loadCommunity(); };
+
+// PENDING
+let pendingItems = [];
+async function loadPending() {
+  try { const resp = await fetch(`${API_URL}/pending`, { headers: { 'X-Admin-Pin': currentPin } }); pendingItems = await resp.json(); } catch(e) { pendingItems = []; }
+  renderPendingList();
+  // Update tab badge
+  const pendingTab = document.querySelector('[data-tab="pending"]');
+  if (pendingTab) pendingTab.textContent = `📥 Pending${pendingItems.length > 0 ? ' (' + pendingItems.length + ')' : ''}`;
+}
+function renderPendingList() {
+  const list = document.getElementById('pending-list');
+  document.getElementById('pending-header').textContent = `Pending submissions (${pendingItems.length})`;
+  if (pendingItems.length === 0) { list.innerHTML = '<div class="empty-list">No pending submissions. 🎉</div>'; return; }
+  list.innerHTML = pendingItems.map((item, i) => {
+    if (item.submissionType === 'story') {
+      return `<div class="entry-row"><div class="entry-info" style="flex:1"><h4>💬 Story from ${item.player}</h4><div class="story-row-quote">"${item.quote}"</div><p>${[item.context, item.year, 'Submitted ' + new Date(item.submitted).toLocaleDateString()].filter(Boolean).join(' · ')}</p></div><div class="entry-actions"><button class="btn-edit" style="color:var(--green-primary);border-color:var(--green-dim)" onclick="approvePending(${i})">Approve</button><button class="btn-delete" onclick="rejectPending(${i})">Reject</button></div></div>`;
+    } else {
+      return `<div class="entry-row"><div class="entry-thumb">${item.image ? `<img src="${item.image}" alt="${item.title}" onerror="this.parentElement.innerHTML='<div class=\\'placeholder\\'>📷</div>'">` : '<div class="placeholder">' + (item.videoUrl ? '▶️' : '📷') + '</div>'}</div><div class="entry-info"><h4>📸 ${item.title}</h4><p>${[item.type, item.credit, item.year, item.images ? item.images.length + ' image(s)' : '', item.videoUrl ? 'has video' : '', 'Submitted ' + new Date(item.submitted).toLocaleDateString()].filter(Boolean).join(' · ')}</p>${item.caption ? `<p style="font-style:italic;margin-top:4px;font-size:11px;color:var(--text-secondary)">${item.caption}</p>` : ''}</div><div class="entry-actions"><button class="btn-edit" style="color:var(--green-primary);border-color:var(--green-dim)" onclick="approvePending(${i})">Approve</button><button class="btn-delete" onclick="rejectPending(${i})">Reject</button></div></div>`;
+    }
+  }).join('');
+}
+window.approvePending = async function(index) {
+  if (!confirm('Approve this submission and add it to the archive?')) return;
+  const data = await apiPost('/pending/approve', { index });
+  if (data.success) { await loadAllData(); }
+};
+window.rejectPending = async function(index) {
+  if (!confirm('Reject this submission? This cannot be undone.')) return;
+  const data = await apiPost('/pending/reject', { index });
+  if (data.success) { await loadPending(); }
+};
 
 // EDIT MODAL
 function showEditModal(title, fields, onSave) {
