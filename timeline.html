@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timeline — Pandemic Paradise Archive</title>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .timeline {
+    position: relative;
+    padding: 40px 0 80px;
+  }
+
+  /* Vertical line */
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 24px;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--green-dim), var(--border) 80%, transparent);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-left: 64px;
+    margin-bottom: 40px;
+  }
+
+  /* Dot on the line */
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 17px;
+    top: 6px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--bg-deep);
+    border: 2px solid var(--green-dim);
+    transition: all 0.3s ease;
+    z-index: 1;
+  }
+
+  .timeline-item:hover::before {
+    border-color: var(--green-primary);
+    box-shadow: 0 0 10px var(--green-glow);
+  }
+
+  /* Type-specific dot colors */
+  .timeline-item[data-type="milestone"]::before { border-color: var(--amber); }
+  .timeline-item[data-type="milestone"]:hover::before { border-color: var(--amber); box-shadow: 0 0 10px var(--amber-dim); }
+  .timeline-item[data-type="era"]::before { border-color: #a78bfa; }
+  .timeline-item[data-type="era"]:hover::before { border-color: #a78bfa; box-shadow: 0 0 10px rgba(167, 139, 250, 0.2); }
+
+  .timeline-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .timeline-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    transition: all 0.3s ease;
+  }
+
+  .timeline-item:hover .timeline-card {
+    border-color: var(--green-dim);
+  }
+
+  .timeline-card h3 {
+    font-family: 'Silkscreen', monospace;
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .timeline-card .type-badge {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    margin-bottom: 10px;
+  }
+
+  .type-badge[data-type="event"] { color: var(--green-primary); background: var(--green-glow); border: 1px solid var(--green-dim); }
+  .type-badge[data-type="milestone"] { color: var(--amber); background: var(--amber-dim); border: 1px solid rgba(245,158,11,0.3); }
+  .type-badge[data-type="update"] { color: #60a5fa; background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.3); }
+  .type-badge[data-type="era"] { color: #a78bfa; background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); }
+
+  .timeline-card p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
+
+  /* Year markers */
+  .year-marker {
+    position: relative;
+    padding-left: 64px;
+    margin-bottom: 32px;
+    margin-top: 48px;
+  }
+
+  .year-marker:first-child {
+    margin-top: 0;
+  }
+
+  .year-marker::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--green-primary);
+    box-shadow: 0 0 12px var(--green-glow);
+    z-index: 1;
+  }
+
+  .year-marker span {
+    font-family: 'Silkscreen', monospace;
+    font-size: 20px;
+    color: var(--green-primary);
+  }
+
+  .timeline-empty {
+    text-align: center;
+    padding: 80px 24px;
+    border: 2px dashed var(--border);
+  }
+
+  .timeline-empty .icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+  }
+
+  .timeline-empty h3 {
+    font-family: 'Silkscreen', monospace;
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .timeline-empty p {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 400px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .timeline::before { left: 16px; }
+    .timeline-item { padding-left: 48px; }
+    .timeline-item::before { left: 9px; }
+    .year-marker { padding-left: 48px; }
+    .year-marker::before { left: 7px; width: 18px; height: 18px; }
+    .timeline-card { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="site-header">
+    <a href="index.html" class="logo">Pandemic Paradise</a>
+    <nav class="site-nav">
+      <a href="timeline.html" class="active">Timeline</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="stories.html">Stories</a>
+      <a href="community.html">Community</a>
+      <a href="the-world.html">The World</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <section class="page-header">
+    <span class="icon">⏳</span>
+    <h1>Timeline</h1>
+    <p>Key moments from opening day through every era of the server.</p>
+  </section>
+
+  <div class="timeline" id="timeline"></div>
+
+  <footer>
+    <p>Built with <span class="heart">♥</span> by the PP community · 2026</p>
+  </footer>
+
+</div>
+
+<script>
+  const API_URL = 'https://pandemicparadise.colbysthickey.workers.dev';
+
+  async function loadTimeline() {
+    const container = document.getElementById('timeline');
+    let items = [];
+
+    try {
+      const resp = await fetch(`${API_URL}/timeline`);
+      items = await resp.json();
+    } catch (e) {
+      items = [];
+    }
+
+    if (items.length === 0) {
+      container.innerHTML = `
+        <div class="timeline-empty">
+          <div class="icon">⏳</div>
+          <h3>Timeline coming soon</h3>
+          <p>Events and milestones from the server's history will appear here as we piece them together.</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Group by year
+    let html = '';
+    let currentYear = null;
+
+    items.forEach(item => {
+      const itemYear = item.date ? new Date(item.date).getFullYear() : null;
+
+      // Insert year marker when year changes
+      if (itemYear && itemYear !== currentYear) {
+        currentYear = itemYear;
+        html += `<div class="year-marker"><span>${currentYear}</span></div>`;
+      } else if (!itemYear && currentYear !== 'undated') {
+        // Group undated items at the end
+        if (currentYear !== null) {
+          currentYear = 'undated';
+        }
+      }
+
+      // Format date
+      let dateStr = '';
+      if (item.date) {
+        const d = new Date(item.date + 'T00:00:00');
+        dateStr = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      }
+
+      html += `
+        <div class="timeline-item" data-type="${item.type || 'event'}">
+          ${dateStr ? `<div class="timeline-date">${dateStr}</div>` : ''}
+          <div class="timeline-card">
+            <span class="type-badge" data-type="${item.type || 'event'}">${item.type || 'event'}</span>
+            <h3>${item.title}</h3>
+            ${item.description ? `<p>${item.description}</p>` : ''}
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  loadTimeline();
+</script>
+
+</body>
+</html>
