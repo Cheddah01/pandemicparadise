@@ -192,9 +192,18 @@
 
       <!-- TIMELINE -->
       <div class="tab-panel" id="panel-timeline">
+        <div class="field">
+          <label>Image (optional)</label>
+          <div class="file-drop" id="t-file-drop" style="padding:20px">
+            <input type="file" id="t-file-input" accept="image/*">
+            <div class="drop-text" style="font-size:11px">Add an image for this event</div>
+            <div class="drop-hint">Optional — events without images are fine</div>
+          </div>
+        </div>
         <div class="field"><label>Event title</label><input type="text" id="t-title" placeholder="Server opens for the first time"></div>
         <div class="field"><label>Date</label><input type="date" id="t-date"></div>
         <div class="field"><label>Type</label><select id="t-type"><option value="event">Event</option><option value="milestone">Milestone</option><option value="update">Server Update</option><option value="era">New Era</option></select></div>
+        <div class="field"><label>Era name (optional)</label><input type="text" id="t-era" placeholder="e.g. The Golden Age, The Quiet Period"><div class="hint">Groups events visually. Events with the same era name are shown together.</div></div>
         <div class="field"><label>Description (optional)</label><textarea id="t-desc" placeholder="What happened and why it mattered..."></textarea></div>
         <button class="submit-btn" id="t-submit">Add to Timeline</button>
         <div class="status" id="t-status"></div>
@@ -396,10 +405,21 @@ document.getElementById('t-submit').addEventListener('click', async () => {
   const statusEl = document.getElementById('t-status'); const title = document.getElementById('t-title').value.trim();
   if (!title) { showStatus(statusEl, 'Please enter a title.', 'error'); return; }
   document.getElementById('t-submit').disabled = true; showStatus(statusEl, 'Adding...', 'loading');
-  try { const data = await apiPost('/timeline/add', { title, date: document.getElementById('t-date').value || null, type: document.getElementById('t-type').value, description: document.getElementById('t-desc').value.trim() || null }); if (data.success) { showStatus(statusEl, `"${title}" added to timeline!`, 'success'); document.getElementById('t-title').value = ''; document.getElementById('t-date').value = ''; document.getElementById('t-desc').value = ''; await loadTimeline(); } else { showStatus(statusEl, data.error || 'Failed.', 'error'); } } catch(e) { showStatus(statusEl, `Error: ${e.message}`, 'error'); }
+  try {
+    const tFileInput = document.getElementById('t-file-input');
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('date', document.getElementById('t-date').value || '');
+    formData.append('type', document.getElementById('t-type').value);
+    formData.append('era', document.getElementById('t-era').value.trim() || '');
+    formData.append('description', document.getElementById('t-desc').value.trim() || '');
+    if (tFileInput.files[0]) formData.append('image', tFileInput.files[0]);
+    const data = await apiPost('/timeline/add', formData, true);
+    if (data.success) { showStatus(statusEl, `"${title}" added to timeline!`, 'success'); document.getElementById('t-title').value = ''; document.getElementById('t-date').value = ''; document.getElementById('t-desc').value = ''; document.getElementById('t-era').value = ''; tFileInput.value = ''; document.getElementById('t-file-drop').classList.remove('has-file'); await loadTimeline(); } else { showStatus(statusEl, data.error || 'Failed.', 'error'); }
+  } catch(e) { showStatus(statusEl, `Error: ${e.message}`, 'error'); }
   document.getElementById('t-submit').disabled = false;
 });
-window.editTimeline = function(index) { const item = timelineItems[index]; showEditModal('Edit Timeline Event', [{ key: 'title', label: 'Title', value: item.title },{ key: 'date', label: 'Date', value: item.date || '', type: 'date' },{ key: 'type', label: 'Type', value: item.type || 'event', type: 'select', options: ['event','milestone','update','era'] },{ key: 'description', label: 'Description', value: item.description || '', type: 'textarea' }], async (updates) => { const data = await apiPost('/timeline/edit', { index, updates }); if (data.success) await loadTimeline(); return data; }); };
+window.editTimeline = function(index) { const item = timelineItems[index]; showEditModal('Edit Timeline Event', [{ key: 'title', label: 'Title', value: item.title },{ key: 'date', label: 'Date', value: item.date || '', type: 'date' },{ key: 'type', label: 'Type', value: item.type || 'event', type: 'select', options: ['event','milestone','update','era'] },{ key: 'era', label: 'Era name', value: item.era || '' },{ key: 'description', label: 'Description', value: item.description || '', type: 'textarea' }], async (updates) => { const data = await apiPost('/timeline/edit', { index, updates }); if (data.success) await loadTimeline(); return data; }); };
 window.deleteTimeline = async function(index) { if (!confirm(`Delete "${timelineItems[index].title}"?`)) return; const data = await apiPost('/timeline/delete', { index }); if (data.success) await loadTimeline(); };
 
 // COMMUNITY

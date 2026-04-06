@@ -7,348 +7,212 @@
 <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Space+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-  .timeline-wrapper {
-    position: relative;
-    margin: 0 -24px;
-    padding: 0 24px;
+  /* Era themes */
+  :root {
+    --era-default: var(--green-primary);
+    --era-default-dim: var(--green-dim);
+    --era-default-glow: var(--green-glow);
   }
 
-  /* Scroll hint arrows */
+  .timeline-wrapper { position: relative; margin: 0 -24px; padding: 0 24px; }
+
+  .timeline-wrapper::before, .timeline-wrapper::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 60px; z-index: 5; pointer-events: none;
+  }
+  .timeline-wrapper::before { left: 0; background: linear-gradient(90deg, var(--bg-deep), transparent); }
+  .timeline-wrapper::after { right: 0; background: linear-gradient(270deg, var(--bg-deep), transparent); }
+
   .scroll-hint {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 10;
-    transition: all 0.3s ease;
-    border-radius: 50%;
+    position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px;
+    background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted);
+    font-size: 18px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 10; transition: all 0.3s ease; border-radius: 50%;
   }
-
-  .scroll-hint:hover {
-    border-color: var(--green-primary);
-    color: var(--green-primary);
-    box-shadow: 0 0 12px var(--green-glow);
-  }
-
+  .scroll-hint:hover { border-color: var(--green-primary); color: var(--green-primary); box-shadow: 0 0 12px var(--green-glow); }
   .scroll-hint.left { left: 8px; }
   .scroll-hint.right { right: 8px; }
   .scroll-hint.hidden { opacity: 0; pointer-events: none; }
 
-  /* Fade edges */
-  .timeline-wrapper::before,
-  .timeline-wrapper::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 60px;
-    z-index: 5;
-    pointer-events: none;
-  }
-
-  .timeline-wrapper::before {
-    left: 0;
-    background: linear-gradient(90deg, var(--bg-deep), transparent);
-  }
-
-  .timeline-wrapper::after {
-    right: 0;
-    background: linear-gradient(270deg, var(--bg-deep), transparent);
-  }
-
-  /* Scrollable track */
   .timeline-track {
-    overflow-x: auto;
-    overflow-y: hidden;
-    cursor: grab;
-    padding: 40px 60px 60px;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    user-select: none;
+    overflow-x: auto; overflow-y: hidden; cursor: grab; padding: 40px 60px 40px;
+    -ms-overflow-style: none; scrollbar-width: none; user-select: none;
   }
-
   .timeline-track::-webkit-scrollbar { display: none; }
   .timeline-track:active { cursor: grabbing; }
 
   .timeline-content {
-    display: flex;
-    align-items: flex-start;
-    position: relative;
-    min-width: max-content;
-    padding-bottom: 20px;
+    display: flex; align-items: flex-start; position: relative; min-width: max-content; padding-bottom: 20px;
   }
 
-  /* Horizontal line */
   .timeline-line {
-    position: absolute;
-    top: 140px;
-    left: 0;
-    right: 0;
-    height: 2px;
+    position: absolute; top: 180px; left: 0; right: 0; height: 2px;
     background: linear-gradient(90deg, transparent, var(--green-dim) 60px, var(--green-dim) calc(100% - 60px), transparent);
   }
 
+  /* Era separator */
+  .era-marker {
+    display: flex; flex-direction: column; align-items: center; flex-shrink: 0; padding: 0 20px; position: relative;
+  }
+  .era-marker .era-label-top {
+    height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 12px;
+  }
+  .era-marker .era-name {
+    font-family: 'Silkscreen', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    writing-mode: horizontal-tb; text-align: center; max-width: 120px;
+  }
+  .era-marker .era-line-v { width: 1px; height: 20px; margin-top: 8px; }
+  .era-marker .era-diamond {
+    width: 16px; height: 16px; transform: rotate(45deg); border: 2px solid; position: relative; z-index: 2;
+  }
+
+  /* Era color themes */
+  .era-theme-0 .era-name, .era-theme-0 .era-diamond { color: #4ade80; border-color: #4ade80; }
+  .era-theme-0 .era-line-v { background: #22633b; }
+  .era-theme-1 .era-name, .era-theme-1 .era-diamond { color: #f59e0b; border-color: #f59e0b; }
+  .era-theme-1 .era-line-v { background: rgba(245,158,11,0.4); }
+  .era-theme-2 .era-name, .era-theme-2 .era-diamond { color: #a78bfa; border-color: #a78bfa; }
+  .era-theme-2 .era-line-v { background: rgba(167,139,250,0.4); }
+  .era-theme-3 .era-name, .era-theme-3 .era-diamond { color: #60a5fa; border-color: #60a5fa; }
+  .era-theme-3 .era-line-v { background: rgba(96,165,250,0.4); }
+  .era-theme-4 .era-name, .era-theme-4 .era-diamond { color: #f472b6; border-color: #f472b6; }
+  .era-theme-4 .era-line-v { background: rgba(244,114,182,0.4); }
+
   /* Year marker */
-  .year-marker {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex-shrink: 0;
-    padding: 0 12px;
-    position: relative;
-  }
-
+  .year-marker { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; padding: 0 12px; }
   .year-marker .year-label {
-    font-family: 'Silkscreen', monospace;
-    font-size: 24px;
-    color: var(--green-primary);
-    margin-bottom: 16px;
-    height: 110px;
-    display: flex;
-    align-items: flex-end;
-    padding-bottom: 8px;
+    font-family: 'Silkscreen', monospace; font-size: 24px; color: var(--green-primary);
+    height: 160px; display: flex; align-items: flex-end; padding-bottom: 12px;
   }
-
   .year-marker .year-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--green-primary);
-    box-shadow: 0 0 12px var(--green-glow);
-    position: relative;
-    z-index: 2;
-  }
-
-  .year-marker .year-line {
-    width: 1px;
-    height: 24px;
-    background: var(--green-dim);
-    margin-top: 4px;
+    width: 14px; height: 14px; border-radius: 50%; background: var(--green-primary);
+    box-shadow: 0 0 12px var(--green-glow); position: relative; z-index: 2;
   }
 
   /* Event card */
   .timeline-event {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex-shrink: 0;
-    width: 220px;
-    padding: 0 8px;
-    position: relative;
+    display: flex; flex-direction: column; align-items: center; flex-shrink: 0;
+    width: 260px; padding: 0 8px; position: relative;
   }
 
-  /* Alternating top/bottom layout */
   .timeline-event .card-container {
-    min-height: 110px;
-    display: flex;
-    align-items: flex-end;
-    padding-bottom: 12px;
+    min-height: 160px; display: flex; align-items: flex-end; padding-bottom: 12px;
   }
-
   .timeline-event.bottom .card-container {
-    height: auto;
-    align-items: flex-start;
-    padding-bottom: 0;
-    padding-top: 12px;
-    order: 3;
+    min-height: auto; align-items: flex-start; padding-bottom: 0; padding-top: 12px; order: 3;
   }
 
   .timeline-event .event-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--bg-deep);
-    border: 2px solid var(--green-dim);
-    position: relative;
-    z-index: 2;
-    flex-shrink: 0;
-    transition: all 0.3s ease;
-    order: 2;
+    width: 12px; height: 12px; border-radius: 50%; background: var(--bg-deep);
+    border: 2px solid var(--green-dim); position: relative; z-index: 2;
+    flex-shrink: 0; transition: all 0.3s ease; order: 2;
   }
-
-  .timeline-event:hover .event-dot {
-    border-color: var(--green-primary);
-    box-shadow: 0 0 10px var(--green-glow);
-  }
-
+  .timeline-event:hover .event-dot { border-color: var(--green-primary); box-shadow: 0 0 10px var(--green-glow); }
   .timeline-event[data-type="milestone"] .event-dot { border-color: var(--amber); }
-  .timeline-event[data-type="milestone"]:hover .event-dot { border-color: var(--amber); box-shadow: 0 0 10px var(--amber-dim); }
+  .timeline-event[data-type="milestone"]:hover .event-dot { box-shadow: 0 0 10px var(--amber-dim); }
   .timeline-event[data-type="era"] .event-dot { border-color: #a78bfa; }
-  .timeline-event[data-type="era"]:hover .event-dot { border-color: #a78bfa; box-shadow: 0 0 10px rgba(167,139,250,0.2); }
   .timeline-event[data-type="update"] .event-dot { border-color: #60a5fa; }
-  .timeline-event[data-type="update"]:hover .event-dot { border-color: #60a5fa; box-shadow: 0 0 10px rgba(96,165,250,0.2); }
 
-  .timeline-event .stem {
-    width: 1px;
-    height: 16px;
-    background: var(--border);
-    flex-shrink: 0;
-    order: 1;
-  }
-
+  .timeline-event .stem { width: 1px; height: 16px; background: var(--border); flex-shrink: 0; order: 1; }
   .timeline-event.bottom .stem { order: 3; }
   .timeline-event.bottom .card-container { order: 4; }
 
   .event-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 14px 16px;
-    width: 200px;
-    transition: all 0.3s ease;
-    cursor: default;
+    background: var(--bg-card); border: 1px solid var(--border); width: 240px;
+    transition: all 0.3s ease; cursor: pointer; overflow: hidden;
   }
-
   .timeline-event:hover .event-card {
-    border-color: var(--green-dim);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    border-color: var(--green-dim); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  .timeline-event.bottom:hover .event-card { transform: translateY(2px); }
+
+  .event-card .card-image {
+    width: 100%; height: 100px; object-fit: cover; display: block;
+    border-bottom: 1px solid var(--border);
   }
 
-  .timeline-event.bottom:hover .event-card {
-    transform: translateY(2px);
-  }
+  .event-card .card-body { padding: 14px 16px; }
 
   .event-card .event-date {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--text-muted);
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
+    font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-muted);
+    letter-spacing: 0.5px; margin-bottom: 4px;
   }
 
-  .event-card .type-badge {
-    display: inline-block;
-    font-family: 'Space Mono', monospace;
-    font-size: 8px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 2px 6px;
-    margin-bottom: 8px;
+  .event-card .day-counter {
+    font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-muted);
+    opacity: 0.6; margin-bottom: 6px;
   }
 
+  .type-badge {
+    display: inline-block; font-family: 'Space Mono', monospace; font-size: 8px;
+    letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; margin-bottom: 8px;
+  }
   .type-badge[data-type="event"] { color: var(--green-primary); background: var(--green-glow); border: 1px solid var(--green-dim); }
   .type-badge[data-type="milestone"] { color: var(--amber); background: var(--amber-dim); border: 1px solid rgba(245,158,11,0.3); }
   .type-badge[data-type="update"] { color: #60a5fa; background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.3); }
   .type-badge[data-type="era"] { color: #a78bfa; background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); }
 
   .event-card h3 {
-    font-family: 'Silkscreen', monospace;
-    font-size: 11px;
-    color: var(--text-primary);
-    margin-bottom: 6px;
-    line-height: 1.4;
+    font-family: 'Silkscreen', monospace; font-size: 11px; color: var(--text-primary);
+    margin-bottom: 4px; line-height: 1.4;
   }
 
-  .event-card p {
-    font-size: 12px;
-    line-height: 1.5;
-    color: var(--text-secondary);
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  .event-card .desc-preview {
+    font-size: 11px; line-height: 1.4; color: var(--text-muted); font-style: italic;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
 
-  /* Scroll progress bar */
-  .scroll-progress {
-    margin: 0 24px 48px;
-    height: 3px;
-    background: var(--border);
-    position: relative;
-    overflow: hidden;
-  }
+  /* Scroll progress */
+  .scroll-progress { margin: 0 24px 16px; height: 3px; background: var(--border); position: relative; overflow: hidden; }
+  .scroll-progress .bar { height: 100%; background: linear-gradient(90deg, var(--green-primary), var(--amber)); width: 0%; transition: width 0.1s ease; }
 
-  .scroll-progress .bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--green-primary), var(--amber));
-    width: 0%;
-    transition: width 0.1s ease;
-  }
-
-  /* Keyboard hint */
   .scroll-hint-text {
-    text-align: center;
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--text-muted);
-    letter-spacing: 1px;
-    margin-bottom: 8px;
+    text-align: center; font-family: 'Space Mono', monospace; font-size: 10px;
+    color: var(--text-muted); letter-spacing: 1px; margin-bottom: 24px;
   }
 
-  /* Empty state */
+  /* Stats bar */
+  .timeline-stats {
+    display: flex; justify-content: center; gap: 40px; padding: 0 0 40px; flex-wrap: wrap;
+  }
+  .tl-stat { text-align: center; }
+  .tl-stat .num { font-family: 'Silkscreen', monospace; font-size: 24px; color: var(--green-primary); display: block; margin-bottom: 2px; }
+  .tl-stat .lbl { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+
+  /* Expanded overlay */
+  .card-overlay {
+    position: fixed; top:0;left:0;right:0;bottom:0; background: rgba(0,0,0,0.88);
+    display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 24px; cursor: pointer;
+  }
+  .card-expanded {
+    background: var(--bg-card); border: 1px solid var(--green-dim); max-width: 560px;
+    width: 100%; cursor: default; overflow: hidden;
+  }
+  .card-expanded .expanded-image { width: 100%; max-height: 300px; object-fit: cover; display: block; border-bottom: 1px solid var(--border); }
+  .card-expanded .expanded-body { padding: 28px 32px; }
+  .card-expanded .event-date { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+  .card-expanded .day-counter { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-muted); opacity: 0.6; margin-bottom: 12px; }
+  .card-expanded h3 { font-family: 'Silkscreen', monospace; font-size: 18px; color: var(--text-primary); margin-bottom: 16px; line-height: 1.3; }
+  .card-expanded p { font-size: 15px; line-height: 1.8; color: var(--text-secondary); }
+  .card-expanded .no-desc { font-size: 14px; color: var(--text-muted); font-style: italic; }
+
+  /* Empty */
   .timeline-empty {
-    text-align: center;
-    padding: 80px 24px;
-    border: 2px dashed var(--border);
-    margin: 0 0 80px;
+    text-align: center; padding: 80px 24px; border: 2px dashed var(--border); margin: 0 0 80px;
   }
-
   .timeline-empty .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
   .timeline-empty h3 { font-family: 'Silkscreen', monospace; font-size: 16px; color: var(--text-secondary); margin-bottom: 8px; }
   .timeline-empty p { font-size: 14px; color: var(--text-muted); max-width: 400px; margin: 0 auto; line-height: 1.6; }
 
-  /* Expanded card overlay */
-  .card-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.85);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 24px;
-    cursor: pointer;
-  }
-
-  .card-expanded {
-    background: var(--bg-card);
-    border: 1px solid var(--green-dim);
-    padding: 32px;
-    max-width: 500px;
-    width: 100%;
-    cursor: default;
-  }
-
-  .card-expanded .event-date {
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-  }
-
-  .card-expanded h3 {
-    font-family: 'Silkscreen', monospace;
-    font-size: 16px;
-    color: var(--text-primary);
-    margin-bottom: 12px;
-  }
-
-  .card-expanded p {
-    font-size: 15px;
-    line-height: 1.7;
-    color: var(--text-secondary);
-  }
-
   @media (max-width: 600px) {
-    .timeline-event { width: 180px; }
-    .event-card { width: 164px; padding: 12px; }
+    .timeline-event { width: 220px; }
+    .event-card { width: 200px; }
     .scroll-hint { width: 32px; height: 32px; font-size: 14px; }
+    .event-card .card-image { height: 80px; }
   }
 </style>
 </head>
 <body>
-
 <div class="container">
-
   <header class="site-header">
     <a href="index.html" class="logo">Pandemic Paradise</a>
     <nav class="site-nav">
@@ -360,214 +224,197 @@
       <a href="about.html">About</a>
     </nav>
   </header>
-
   <section class="page-header">
     <span class="icon">⏳</span>
     <h1>Timeline</h1>
-    <p>Scroll through the history of Pandemic Paradise, from opening day to now.</p>
+    <p>Scroll through the history of Pandemic Paradise, from opening day to the final log-off.</p>
   </section>
-
 </div>
-
-<div id="timeline-container">
-  <!-- Populated by JS -->
-</div>
-
+<div id="timeline-container"></div>
 <div class="container">
-  <footer>
-    <p>Built with <span class="heart">♥</span> by the PP community · 2026</p>
-  </footer>
+  <footer><p>Built with <span class="heart">♥</span> by the PP community · 2026</p></footer>
 </div>
 
 <script>
-  const API_URL = 'https://pandemicparadise.colbysthickey.workers.dev';
+const API_URL = 'https://pandemicparadise.colbysthickey.workers.dev';
+const SERVER_START = new Date('2020-04-05T00:00:00');
+const ERA_COLORS = ['era-theme-0','era-theme-1','era-theme-2','era-theme-3','era-theme-4'];
 
-  async function loadTimeline() {
-    const container = document.getElementById('timeline-container');
-    let items = [];
+function getDayNumber(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr + 'T00:00:00');
+  const diff = d - SERVER_START;
+  return Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
+}
 
-    try {
-      const resp = await fetch(`${API_URL}/timeline`);
-      items = await resp.json();
-    } catch (e) {
-      items = [];
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function formatDateLong(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+async function loadTimeline() {
+  const container = document.getElementById('timeline-container');
+  let items = [];
+  try { const resp = await fetch(`${API_URL}/timeline`); items = await resp.json(); } catch (e) { items = []; }
+
+  if (items.length === 0) {
+    container.innerHTML = `<div class="container"><div class="timeline-empty"><div class="icon">⏳</div><h3>Timeline coming soon</h3><p>Events and milestones from the server's history will appear here as we piece them together.</p></div></div>`;
+    return;
+  }
+
+  // Track eras and assign colors
+  const eraMap = {};
+  let eraIndex = 0;
+  items.forEach(item => {
+    if (item.era && !eraMap[item.era]) { eraMap[item.era] = ERA_COLORS[eraIndex % ERA_COLORS.length]; eraIndex++; }
+  });
+
+  // Build HTML
+  let contentHTML = '';
+  let currentYear = null;
+  let currentEra = null;
+  let alternating = false;
+
+  // Stats
+  const totalEvents = items.length;
+  const firstDate = items.find(i => i.date)?.date;
+  const lastDate = [...items].reverse().find(i => i.date)?.date;
+  const totalDays = firstDate && lastDate ? Math.floor((new Date(lastDate) - new Date(firstDate)) / (1000*60*60*24)) : 0;
+
+  items.forEach((item, i) => {
+    const itemYear = item.date ? new Date(item.date + 'T00:00:00').getFullYear() : null;
+    const itemEra = item.era || null;
+
+    // Era marker
+    if (itemEra && itemEra !== currentEra) {
+      currentEra = itemEra;
+      const theme = eraMap[itemEra] || 'era-theme-0';
+      contentHTML += `<div class="era-marker ${theme}"><div class="era-label-top"><div class="era-name">${itemEra}</div><div class="era-line-v"></div></div><div class="era-diamond"></div></div>`;
     }
 
-    if (items.length === 0) {
-      container.innerHTML = `
-        <div class="container">
-          <div class="timeline-empty">
-            <div class="icon">⏳</div>
-            <h3>Timeline coming soon</h3>
-            <p>Events and milestones from the server's history will appear here as we piece them together.</p>
-          </div>
-        </div>
-      `;
-      return;
+    // Year marker
+    if (itemYear && itemYear !== currentYear) {
+      currentYear = itemYear;
+      contentHTML += `<div class="year-marker"><div class="year-label">${currentYear}</div><div class="year-dot"></div></div>`;
     }
 
-    // Build timeline HTML
-    let contentHTML = '';
-    let currentYear = null;
-    let alternating = false;
+    const dateStr = formatDate(item.date);
+    const dayNum = getDayNumber(item.date);
+    const position = alternating ? 'bottom' : 'top';
+    alternating = !alternating;
 
-    items.forEach((item, i) => {
-      const itemYear = item.date ? new Date(item.date + 'T00:00:00').getFullYear() : null;
-
-      // Year marker
-      if (itemYear && itemYear !== currentYear) {
-        currentYear = itemYear;
-        contentHTML += `
-          <div class="year-marker">
-            <div class="year-label">${currentYear}</div>
-            <div class="year-dot"></div>
-            <div class="year-line"></div>
-          </div>
-        `;
-      }
-
-      // Format date
-      let dateStr = '';
-      if (item.date) {
-        const d = new Date(item.date + 'T00:00:00');
-        dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      }
-
-      const position = alternating ? 'bottom' : 'top';
-      alternating = !alternating;
-
-      const descPreview = item.description || '';
-
-      contentHTML += `
-        <div class="timeline-event ${position}" data-type="${item.type || 'event'}" data-index="${i}">
-          <div class="card-container">
-            <div class="event-card" onclick="expandCard(${i})">
+    contentHTML += `
+      <div class="timeline-event ${position}" data-type="${item.type || 'event'}" data-index="${i}">
+        <div class="card-container">
+          <div class="event-card" onclick="expandCard(${i})">
+            ${item.image ? `<img class="card-image" src="${item.image}" alt="${item.title}" onerror="this.remove()">` : ''}
+            <div class="card-body">
               ${dateStr ? `<div class="event-date">${dateStr}</div>` : ''}
+              ${dayNum !== null ? `<div class="day-counter">Day ${dayNum}</div>` : ''}
               <span class="type-badge" data-type="${item.type || 'event'}">${item.type || 'event'}</span>
               <h3>${item.title}</h3>
-              ${descPreview ? `<p>${descPreview}</p>` : ''}
+              ${item.description ? `<div class="desc-preview">${item.description}</div>` : ''}
             </div>
           </div>
-          <div class="stem"></div>
-          <div class="event-dot"></div>
         </div>
-      `;
-    });
+        <div class="stem"></div>
+        <div class="event-dot"></div>
+      </div>
+    `;
+  });
 
-    container.innerHTML = `
-      <div class="timeline-wrapper">
-        <button class="scroll-hint left" id="scroll-left" onclick="scrollTimeline(-400)">←</button>
-        <button class="scroll-hint right" id="scroll-right" onclick="scrollTimeline(400)">→</button>
-        <div class="timeline-track" id="timeline-track">
-          <div class="timeline-content">
-            <div class="timeline-line"></div>
-            ${contentHTML}
-          </div>
+  container.innerHTML = `
+    <div class="container">
+      <div class="timeline-stats">
+        <div class="tl-stat"><span class="num">${totalEvents}</span><span class="lbl">Events</span></div>
+        <div class="tl-stat"><span class="num">${totalDays}</span><span class="lbl">Days</span></div>
+        <div class="tl-stat"><span class="num">${Object.keys(eraMap).length || '—'}</span><span class="lbl">Eras</span></div>
+      </div>
+    </div>
+    <div class="timeline-wrapper">
+      <button class="scroll-hint left" id="scroll-left" onclick="scrollTimeline(-400)">←</button>
+      <button class="scroll-hint right" id="scroll-right" onclick="scrollTimeline(400)">→</button>
+      <div class="timeline-track" id="timeline-track">
+        <div class="timeline-content">
+          <div class="timeline-line"></div>
+          ${contentHTML}
         </div>
       </div>
-      <div class="scroll-progress"><div class="bar" id="progress-bar"></div></div>
-      <div class="scroll-hint-text">SCROLL OR DRAG TO EXPLORE · CLICK A CARD FOR DETAILS</div>
-    `;
+    </div>
+    <div class="scroll-progress"><div class="bar" id="progress-bar"></div></div>
+    <div class="scroll-hint-text">SCROLL OR DRAG TO EXPLORE · CLICK A CARD FOR DETAILS</div>
+  `;
 
-    // Store items for expand
-    window._timelineItems = items;
+  window._timelineItems = items;
+  setupScrolling();
+}
 
-    setupScrolling();
-  }
+function setupScrolling() {
+  const track = document.getElementById('timeline-track');
+  const progressBar = document.getElementById('progress-bar');
+  let isDragging = false, startX, scrollLeft;
 
-  // =============================================
-  // Scrolling: drag, arrows, keyboard, progress
-  // =============================================
-  function setupScrolling() {
-    const track = document.getElementById('timeline-track');
-    const progressBar = document.getElementById('progress-bar');
-    let isDragging = false;
-    let startX, scrollLeft;
+  track.addEventListener('mousedown', (e) => { isDragging = true; track.style.cursor = 'grabbing'; startX = e.pageX - track.offsetLeft; scrollLeft = track.scrollLeft; });
+  track.addEventListener('mouseleave', () => { isDragging = false; track.style.cursor = 'grab'; });
+  track.addEventListener('mouseup', () => { isDragging = false; track.style.cursor = 'grab'; });
+  track.addEventListener('mousemove', (e) => { if (!isDragging) return; e.preventDefault(); const x = e.pageX - track.offsetLeft; track.scrollLeft = scrollLeft - (x - startX) * 1.5; });
 
-    // Drag to scroll
-    track.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      track.style.cursor = 'grabbing';
-      startX = e.pageX - track.offsetLeft;
-      scrollLeft = track.scrollLeft;
-    });
-
-    track.addEventListener('mouseleave', () => { isDragging = false; track.style.cursor = 'grab'; });
-    track.addEventListener('mouseup', () => { isDragging = false; track.style.cursor = 'grab'; });
-
-    track.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
-      e.preventDefault();
-      const x = e.pageX - track.offsetLeft;
-      const walk = (x - startX) * 1.5;
-      track.scrollLeft = scrollLeft - walk;
-    });
-
-    // Progress bar
-    track.addEventListener('scroll', () => {
-      const maxScroll = track.scrollWidth - track.clientWidth;
-      const progress = maxScroll > 0 ? (track.scrollLeft / maxScroll) * 100 : 0;
-      progressBar.style.width = `${progress}%`;
-      updateArrows();
-    });
-
-    // Keyboard
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') scrollTimeline(300);
-      if (e.key === 'ArrowLeft') scrollTimeline(-300);
-    });
-
+  track.addEventListener('scroll', () => {
+    const maxScroll = track.scrollWidth - track.clientWidth;
+    progressBar.style.width = `${maxScroll > 0 ? (track.scrollLeft / maxScroll) * 100 : 0}%`;
     updateArrows();
-  }
+  });
 
-  function scrollTimeline(amount) {
-    const track = document.getElementById('timeline-track');
-    track.scrollBy({ left: amount, behavior: 'smooth' });
-  }
+  document.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') scrollTimeline(300); if (e.key === 'ArrowLeft') scrollTimeline(-300); });
+  updateArrows();
+}
 
-  function updateArrows() {
-    const track = document.getElementById('timeline-track');
-    const left = document.getElementById('scroll-left');
-    const right = document.getElementById('scroll-right');
-    if (!track || !left || !right) return;
+function scrollTimeline(amount) { document.getElementById('timeline-track').scrollBy({ left: amount, behavior: 'smooth' }); }
 
-    left.classList.toggle('hidden', track.scrollLeft <= 10);
-    right.classList.toggle('hidden', track.scrollLeft >= track.scrollWidth - track.clientWidth - 10);
-  }
+function updateArrows() {
+  const track = document.getElementById('timeline-track');
+  const left = document.getElementById('scroll-left');
+  const right = document.getElementById('scroll-right');
+  if (!track || !left || !right) return;
+  left.classList.toggle('hidden', track.scrollLeft <= 10);
+  right.classList.toggle('hidden', track.scrollLeft >= track.scrollWidth - track.clientWidth - 10);
+}
 
-  // =============================================
-  // Expand card
-  // =============================================
-  window.expandCard = function(index) {
-    const item = window._timelineItems[index];
-    if (!item) return;
+window.expandCard = function(index) {
+  const item = window._timelineItems[index];
+  if (!item) return;
 
-    let dateStr = '';
-    if (item.date) {
-      const d = new Date(item.date + 'T00:00:00');
-      dateStr = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    }
+  const dateLong = formatDateLong(item.date);
+  const dayNum = getDayNumber(item.date);
 
-    const overlay = document.createElement('div');
-    overlay.className = 'card-overlay';
-    overlay.innerHTML = `
-      <div class="card-expanded">
-        ${dateStr ? `<div class="event-date">${dateStr}</div>` : ''}
-        <span class="type-badge" data-type="${item.type || 'event'}" style="display:inline-block;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;margin-bottom:12px">${item.type || 'event'}</span>
+  const overlay = document.createElement('div');
+  overlay.className = 'card-overlay';
+  overlay.innerHTML = `
+    <div class="card-expanded">
+      ${item.image ? `<img class="expanded-image" src="${item.image}" alt="${item.title}" onerror="this.remove()">` : ''}
+      <div class="expanded-body">
+        ${dateLong ? `<div class="event-date">${dateLong}</div>` : ''}
+        ${dayNum !== null ? `<div class="day-counter">Day ${dayNum} of Pandemic Paradise</div>` : ''}
+        <span class="type-badge" data-type="${item.type || 'event'}" style="display:inline-block;margin-bottom:12px">${item.type || 'event'}</span>
+        ${item.era ? `<span class="type-badge" data-type="era" style="display:inline-block;margin-bottom:12px;margin-left:4px">${item.era}</span>` : ''}
         <h3>${item.title}</h3>
-        ${item.description ? `<p>${item.description}</p>` : '<p style="color:var(--text-muted);font-style:italic">No description added yet.</p>'}
+        ${item.description ? `<p>${item.description}</p>` : '<p class="no-desc">No description added yet.</p>'}
       </div>
-    `;
+    </div>
+  `;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', esc); } });
+  document.body.appendChild(overlay);
+};
 
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) overlay.remove();
-    });
-
-    document.body.appendChild(overlay);
-  };
-
-  loadTimeline();
+loadTimeline();
 </script>
-
 </body>
 </html>
