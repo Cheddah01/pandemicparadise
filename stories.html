@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stories — Pandemic Paradise Archive</title>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .stories-intro {
+    text-align: center;
+    max-width: 550px;
+    margin: 0 auto 48px;
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+  }
+
+  .stories-feed {
+    padding-bottom: 60px;
+  }
+
+  .story {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 36px 36px 28px;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+  }
+
+  .story:hover {
+    border-color: var(--green-dim);
+  }
+
+  /* Quote mark */
+  .story::before {
+    content: '\201C';
+    font-family: 'Lora', serif;
+    font-size: 72px;
+    color: var(--green-dim);
+    position: absolute;
+    top: 8px;
+    left: 24px;
+    line-height: 1;
+    transition: color 0.3s ease;
+  }
+
+  .story:hover::before {
+    color: var(--green-primary);
+  }
+
+  .story-quote {
+    font-size: 17px;
+    line-height: 1.9;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding-left: 36px;
+    margin-bottom: 20px;
+  }
+
+  .story-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-left: 36px;
+  }
+
+  .story-avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--bg-card-hover);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Silkscreen', monospace;
+    font-size: 13px;
+    color: var(--green-primary);
+    flex-shrink: 0;
+  }
+
+  .story-attribution {
+    flex: 1;
+  }
+
+  .story-attribution .player-name {
+    font-family: 'Silkscreen', monospace;
+    font-size: 12px;
+    color: var(--amber);
+    margin-bottom: 2px;
+  }
+
+  .story-attribution .player-context {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .story-year {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  /* Long stories get a subtle left border accent */
+  .story.long {
+    border-left: 3px solid var(--green-dim);
+  }
+
+  .story.long:hover {
+    border-left-color: var(--green-primary);
+  }
+
+  /* Count */
+  .stories-count {
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-bottom: 32px;
+  }
+
+  /* CTA at bottom */
+  .stories-cta {
+    text-align: center;
+    padding: 48px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .stories-cta p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    line-height: 1.7;
+  }
+
+  .stories-cta a {
+    display: inline-block;
+    font-family: 'Silkscreen', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 12px 28px;
+    background: transparent;
+    border: 1px solid var(--green-primary);
+    color: var(--green-primary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .stories-cta a:hover {
+    background: var(--green-glow);
+    box-shadow: 0 0 20px var(--green-glow);
+  }
+
+  /* Empty state */
+  .stories-empty {
+    text-align: center;
+    padding: 80px 24px;
+    border: 2px dashed var(--border);
+    margin-bottom: 48px;
+  }
+
+  .stories-empty .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+  .stories-empty h3 { font-family: 'Silkscreen', monospace; font-size: 16px; color: var(--text-secondary); margin-bottom: 8px; }
+  .stories-empty p { font-size: 14px; color: var(--text-muted); max-width: 400px; margin: 0 auto; line-height: 1.6; }
+
+  @media (max-width: 600px) {
+    .story { padding: 28px 20px 24px; }
+    .story::before { font-size: 56px; left: 14px; top: 4px; }
+    .story-quote { padding-left: 24px; font-size: 15px; }
+    .story-footer { padding-left: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="site-header">
+    <a href="index.html" class="logo">Pandemic Paradise</a>
+    <nav class="site-nav">
+      <a href="timeline.html">Timeline</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="stories.html" class="active">Stories</a>
+      <a href="community.html">Community</a>
+      <a href="the-world.html">The World</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <section class="page-header">
+    <span class="icon">💬</span>
+    <h1>Stories</h1>
+    <p>Memories and reflections from the people who called Pandemic Paradise home.</p>
+  </section>
+
+  <div id="stories-content"></div>
+
+  <footer>
+    <p>Built with <span class="heart">♥</span> by the PP community · 2026</p>
+  </footer>
+
+</div>
+
+<script>
+  const API_URL = 'https://pandemicparadise.colbysthickey.workers.dev';
+
+  async function loadStories() {
+    const content = document.getElementById('stories-content');
+    let stories = [];
+
+    try {
+      const resp = await fetch(`${API_URL}/stories`);
+      stories = await resp.json();
+    } catch (e) {
+      stories = [];
+    }
+
+    if (stories.length === 0) {
+      content.innerHTML = `
+        <div class="stories-empty">
+          <div class="icon">💬</div>
+          <h3>Stories coming soon</h3>
+          <p>Memories and reflections from the community will appear here. If you played on Pandemic Paradise, we'd love to hear from you.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const countHTML = `<div class="stories-count">${stories.length} ${stories.length === 1 ? 'story' : 'stories'} from the community</div>`;
+
+    const storiesHTML = stories.map(story => {
+      const initial = story.player ? story.player.charAt(0).toUpperCase() : '?';
+      const isLong = story.quote && story.quote.length > 200;
+
+      return `
+        <div class="story${isLong ? ' long' : ''}">
+          <div class="story-quote">${escapeHTML(story.quote)}</div>
+          <div class="story-footer">
+            <div class="story-avatar">${initial}</div>
+            <div class="story-attribution">
+              <div class="player-name">${escapeHTML(story.player)}</div>
+              ${story.context ? `<div class="player-context">${escapeHTML(story.context)}</div>` : ''}
+            </div>
+            ${story.year ? `<div class="story-year">${story.year}</div>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const ctaHTML = `
+      <div class="stories-cta">
+        <p>Have a memory from Pandemic Paradise? We'd love to add it to the archive.</p>
+        <a href="admin.html">Submit Your Story</a>
+      </div>
+    `;
+
+    content.innerHTML = countHTML + `<div class="stories-feed">${storiesHTML}</div>` + ctaHTML;
+  }
+
+  function escapeHTML(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  loadStories();
+</script>
+
+</body>
+</html>
