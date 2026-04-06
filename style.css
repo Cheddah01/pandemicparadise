@@ -18,6 +18,51 @@
   --border: #1e1e2a;
 }
 
+[data-theme="light"] {
+  --bg-deep: #f5f3ef;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f0ede8;
+  --green-primary: #16a34a;
+  --green-dim: #86efac;
+  --green-glow: rgba(22, 163, 74, 0.1);
+  --amber: #d97706;
+  --amber-dim: rgba(217, 119, 6, 0.1);
+  --text-primary: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #999999;
+  --border: #e0ddd8;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.theme-toggle:hover {
+  border-color: var(--green-primary);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+/* Hide starfield in light mode */
+[data-theme="light"] body::before {
+  display: none;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
@@ -670,4 +715,39 @@ footer .heart {
   .gallery-grid { grid-template-columns: 1fr; }
   .site-header { justify-content: center; text-align: center; }
   .site-nav { justify-content: center; }
+}
+
+/* ==============================
+   Light Mode Overrides
+   ============================== */
+
+[data-theme="light"] .hero h1 {
+  background: linear-gradient(180deg, #1a1a1a 0%, var(--green-primary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+[data-theme="light"] .nav-card:hover,
+[data-theme="light"] .gallery-item:hover,
+[data-theme="light"] .member-card:hover,
+[data-theme="light"] .story:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .server-badge {
+  background: rgba(22, 163, 74, 0.08);
+}
+
+[data-theme="light"] .years .dot {
+  box-shadow: 0 0 8px rgba(22, 163, 74, 0.4);
+}
+
+[data-theme="light"] .gallery-item .thumb .tag,
+[data-theme="light"] .gallery-item .video-thumb .tag {
+  background: rgba(255,255,255,0.85);
+}
+
+[data-theme="light"] .story-card::before,
+[data-theme="light"] .story::before {
+  color: #86efac;
 }
