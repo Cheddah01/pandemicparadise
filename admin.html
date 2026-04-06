@@ -231,7 +231,11 @@
           <p style="font-size:14px;color:var(--text-secondary);line-height:1.6">Public submissions appear here for review. Approve to add them to the archive, or reject to discard.</p>
           <p style="font-size:12px;color:var(--text-muted);margin-top:8px">Share this link with your community: <span style="color:var(--green-primary)">yoursite.com/submit.html</span></p>
         </div>
-        <div class="entries-section"><h3 id="pending-header">Pending submissions</h3><div id="pending-list"></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <h3 id="pending-header" style="margin:0">Pending submissions</h3>
+          <button onclick="loadPending()" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--green-primary);background:none;border:1px solid var(--green-dim);padding:6px 14px;cursor:pointer;transition:all 0.2s ease" onmouseover="this.style.background='var(--green-glow)'" onmouseout="this.style.background='none'">↻ Refresh</button>
+        </div>
+        <div id="pending-list"></div>
       </div>
 
     </div>
