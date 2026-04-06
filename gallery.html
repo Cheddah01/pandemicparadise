@@ -46,12 +46,17 @@
 </div>
 
 <script>
+  // =============================================
+  // CONFIG — Update this with your worker URL
+  // =============================================
+  const API_URL = 'https://pandemicparadise.<YOUR-SUBDOMAIN>.workers.dev';
+
   let allItems = [];
   let activeFilter = 'all';
 
   async function loadGallery() {
     try {
-      const response = await fetch('gallery-data.json');
+      const response = await fetch(`${API_URL}/gallery`);
       allItems = await response.json();
     } catch (e) {
       allItems = [];

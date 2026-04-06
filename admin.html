@@ -13,40 +13,116 @@
     padding-bottom: 80px;
   }
 
-  .setup-box {
+  /* PIN Screen */
+  .pin-screen {
+    text-align: center;
+    padding: 60px 0;
+  }
+
+  .pin-screen .lock-icon {
+    font-size: 48px;
+    margin-bottom: 24px;
+    display: block;
+  }
+
+  .pin-screen h2 {
+    font-family: 'Silkscreen', monospace;
+    font-size: 18px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .pin-screen p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .pin-input-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .pin-digit {
+    width: 52px;
+    height: 64px;
     background: var(--bg-card);
     border: 1px solid var(--border);
-    padding: 24px;
+    color: var(--green-primary);
+    font-family: 'Silkscreen', monospace;
+    font-size: 24px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.3s ease;
+    -webkit-text-security: disc;
+  }
+
+  .pin-digit:focus {
+    border-color: var(--green-primary);
+    box-shadow: 0 0 12px var(--green-glow);
+  }
+
+  .pin-btn {
+    display: inline-block;
+    font-family: 'Silkscreen', monospace;
+    font-size: 13px;
+    letter-spacing: 1px;
+    padding: 14px 36px;
+    background: transparent;
+    border: 1px solid var(--green-primary);
+    color: var(--green-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .pin-btn:hover:not(:disabled) {
+    background: var(--green-glow);
+    box-shadow: 0 0 20px var(--green-glow);
+  }
+
+  .pin-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Upload form */
+  .upload-screen {
+    display: none;
+  }
+
+  .welcome-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
     margin-bottom: 32px;
   }
 
-  .setup-box h3 {
-    font-family: 'Silkscreen', monospace;
-    font-size: 12px;
-    color: var(--amber);
-    margin-bottom: 12px;
-  }
-
-  .setup-box p {
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 12px;
-  }
-
-  .setup-box code {
+  .welcome-bar span {
     font-family: 'Space Mono', monospace;
     font-size: 12px;
-    background: rgba(255,255,255,0.05);
-    padding: 2px 6px;
     color: var(--green-primary);
   }
 
-  .setup-box ol {
-    padding-left: 20px;
-    font-size: 13px;
+  .welcome-bar button {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .welcome-bar button:hover {
+    border-color: var(--text-muted);
     color: var(--text-secondary);
-    line-height: 1.8;
   }
 
   .field {
@@ -100,14 +176,6 @@
     min-height: 80px;
   }
 
-  .field .hint {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--text-muted);
-    margin-top: 6px;
-  }
-
-  /* File upload area */
   .file-drop {
     border: 2px dashed var(--border);
     padding: 32px;
@@ -154,7 +222,6 @@
     margin-top: 12px;
   }
 
-  /* Submit */
   .submit-btn {
     display: block;
     width: 100%;
@@ -180,7 +247,6 @@
     cursor: not-allowed;
   }
 
-  /* Status messages */
   .status {
     font-family: 'Space Mono', monospace;
     font-size: 12px;
@@ -209,44 +275,6 @@
     background: var(--amber-dim);
     border: 1px solid rgba(245, 158, 11, 0.3);
   }
-
-  /* Config section */
-  .config-section {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 24px;
-    margin-bottom: 32px;
-  }
-
-  .config-section h3 {
-    font-family: 'Silkscreen', monospace;
-    font-size: 12px;
-    color: var(--text-primary);
-    margin-bottom: 16px;
-  }
-
-  .config-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  @media (max-width: 600px) {
-    .config-row { grid-template-columns: 1fr; }
-  }
-
-  .saved-indicator {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--green-primary);
-    margin-top: 8px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .saved-indicator.show {
-    opacity: 1;
-  }
 </style>
 </head>
 <body>
@@ -268,93 +296,86 @@
   <section class="page-header">
     <span class="icon">🔧</span>
     <h1>Admin Panel</h1>
-    <p>Add screenshots, builds, and videos to the archive. Uploads go straight to the GitHub repo.</p>
+    <p>Add screenshots, builds, and videos to the archive.</p>
   </section>
 
   <div class="admin-wrapper">
 
-    <div class="setup-box">
-      <h3>First time setup</h3>
-      <p>You need a GitHub Personal Access Token to use this panel. Here's how to get one:</p>
-      <ol>
-        <li>Go to <strong>github.com → Settings → Developer Settings → Personal Access Tokens → Fine-grained tokens</strong></li>
-        <li>Click <strong>Generate new token</strong></li>
-        <li>Give it a name like "PP Archive"</li>
-        <li>Under <strong>Repository access</strong>, select only your archive repo</li>
-        <li>Under <strong>Permissions → Repository permissions</strong>, set <strong>Contents</strong> to <strong>Read and write</strong></li>
-        <li>Generate and paste the token below</li>
-      </ol>
-      <p>Your token is stored only in your browser's memory and is never saved anywhere.</p>
+    <!-- PIN SCREEN -->
+    <div id="pin-screen" class="pin-screen">
+      <span class="lock-icon">🔒</span>
+      <h2>Enter PIN</h2>
+      <p>Enter the 6-digit PIN to access the admin panel.</p>
+      <div class="pin-input-row" id="pin-row">
+        <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+        <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+        <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+        <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+        <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+        <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+      </div>
+      <button class="pin-btn" id="pin-submit">Unlock</button>
+      <div class="status" id="pin-status"></div>
     </div>
 
-    <div class="config-section">
-      <h3>GitHub Config</h3>
-      <div class="config-row">
-        <div class="field">
-          <label>GitHub Username</label>
-          <input type="text" id="gh-owner" placeholder="your-username">
-        </div>
-        <div class="field">
-          <label>Repo Name</label>
-          <input type="text" id="gh-repo" placeholder="pandemic-paradise">
-        </div>
+    <!-- UPLOAD FORM -->
+    <div id="upload-screen" class="upload-screen">
+
+      <div class="welcome-bar">
+        <span>🔓 Admin unlocked</span>
+        <button id="lock-btn">Lock</button>
       </div>
+
       <div class="field">
-        <label>Personal Access Token</label>
-        <input type="password" id="gh-token" placeholder="github_pat_...">
-        <div class="hint">This is never stored permanently — only kept in memory while this page is open.</div>
+        <label>Image</label>
+        <div class="file-drop" id="file-drop">
+          <input type="file" id="file-input" accept="image/*">
+          <div class="drop-text">Drop an image here or click to browse</div>
+          <div class="drop-hint">PNG, JPG, GIF, WEBP</div>
+        </div>
       </div>
-    </div>
 
-    <div class="field">
-      <label>Image</label>
-      <div class="file-drop" id="file-drop">
-        <input type="file" id="file-input" accept="image/*">
-        <div class="drop-text">Drop an image here or click to browse</div>
-        <div class="drop-hint">PNG, JPG, GIF, WEBP</div>
+      <div class="field">
+        <label>Title</label>
+        <input type="text" id="entry-title" placeholder="Spawn Town at Sunset">
       </div>
-    </div>
 
-    <div class="field">
-      <label>Title</label>
-      <input type="text" id="entry-title" placeholder="Spawn Town at Sunset">
-    </div>
+      <div class="field">
+        <label>Type</label>
+        <select id="entry-type">
+          <option value="screenshot">Screenshot</option>
+          <option value="build">Build</option>
+          <option value="video">Video</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
 
-    <div class="field">
-      <label>Type</label>
-      <select id="entry-type">
-        <option value="screenshot">Screenshot</option>
-        <option value="build">Build</option>
-        <option value="video">Video</option>
-        <option value="other">Other</option>
-      </select>
-    </div>
+      <div class="field">
+        <label>Submitted by</label>
+        <input type="text" id="entry-credit" placeholder="Player name">
+      </div>
 
-    <div class="field">
-      <label>Submitted by</label>
-      <input type="text" id="entry-credit" placeholder="Player name">
-    </div>
+      <div class="field">
+        <label>Year</label>
+        <select id="entry-year">
+          <option value="2020">2020</option>
+          <option value="2021">2021</option>
+          <option value="2022">2022</option>
+          <option value="2023">2023</option>
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+          <option value="2026">2026</option>
+        </select>
+      </div>
 
-    <div class="field">
-      <label>Year</label>
-      <select id="entry-year">
-        <option value="2020">2020</option>
-        <option value="2021">2021</option>
-        <option value="2022">2022</option>
-        <option value="2023">2023</option>
-        <option value="2024">2024</option>
-        <option value="2025">2025</option>
-        <option value="2026">2026</option>
-      </select>
-    </div>
+      <div class="field">
+        <label>Caption (optional)</label>
+        <textarea id="entry-caption" placeholder="A short description or memory attached to this image..."></textarea>
+      </div>
 
-    <div class="field">
-      <label>Caption (optional)</label>
-      <textarea id="entry-caption" placeholder="A short description or memory attached to this image..."></textarea>
+      <button class="submit-btn" id="submit-btn">Upload to Archive</button>
+      <div class="status" id="upload-status"></div>
     </div>
-
-    <button class="submit-btn" id="submit-btn">Upload to Archive</button>
-    <div class="status" id="status"></div>
 
   </div>
 
@@ -365,11 +386,92 @@
 </div>
 
 <script>
-  const BRANCH = 'main';
-  let selectedFile = null;
-  let fileBase64 = null;
+  // =============================================
+  // CONFIG — Update this with your worker URL
+  // =============================================
+  const API_URL = 'https://pandemicparadise.<YOUR-SUBDOMAIN>.workers.dev';
 
+  let currentPin = null;
+
+  // =============================================
+  // PIN input behavior
+  // =============================================
+  const pinRow = document.getElementById('pin-row');
+  const digits = pinRow.querySelectorAll('.pin-digit');
+
+  digits.forEach((input, i) => {
+    input.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/[^0-9]/g, '');
+      if (e.target.value && i < digits.length - 1) digits[i + 1].focus();
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !e.target.value && i > 0) digits[i - 1].focus();
+      if (e.key === 'Enter' && i === digits.length - 1) document.getElementById('pin-submit').click();
+    });
+    input.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const paste = (e.clipboardData.getData('text') || '').replace(/[^0-9]/g, '');
+      for (let j = 0; j < Math.min(paste.length, digits.length); j++) digits[j].value = paste[j];
+      digits[Math.min(paste.length, digits.length - 1)].focus();
+    });
+  });
+
+  function getPin() {
+    return Array.from(digits).map(d => d.value).join('');
+  }
+
+  function clearPin() {
+    digits.forEach(d => d.value = '');
+    digits[0].focus();
+  }
+
+  // =============================================
+  // PIN verification
+  // =============================================
+  document.getElementById('pin-submit').addEventListener('click', async () => {
+    const pin = getPin();
+    const statusEl = document.getElementById('pin-status');
+
+    if (pin.length !== 6) {
+      showStatus(statusEl, 'Enter all 6 digits.', 'error');
+      return;
+    }
+
+    showStatus(statusEl, 'Checking...', 'loading');
+
+    try {
+      const resp = await fetch(`${API_URL}/verify-pin`, {
+        method: 'POST',
+        headers: { 'X-Admin-Pin': pin },
+      });
+      const data = await resp.json();
+
+      if (data.success) {
+        currentPin = pin;
+        document.getElementById('pin-screen').style.display = 'none';
+        document.getElementById('upload-screen').style.display = 'block';
+      } else {
+        showStatus(statusEl, 'Wrong PIN.', 'error');
+        clearPin();
+      }
+    } catch (e) {
+      showStatus(statusEl, 'Could not connect to server.', 'error');
+    }
+  });
+
+  // Lock button
+  document.getElementById('lock-btn').addEventListener('click', () => {
+    currentPin = null;
+    document.getElementById('upload-screen').style.display = 'none';
+    document.getElementById('pin-screen').style.display = 'block';
+    document.getElementById('pin-status').style.display = 'none';
+    clearPin();
+  });
+
+  // =============================================
   // File handling
+  // =============================================
+  let selectedFile = null;
   const fileDrop = document.getElementById('file-drop');
   const fileInput = document.getElementById('file-input');
 
@@ -379,11 +481,7 @@
     e.preventDefault();
     fileDrop.classList.add('dragover');
   });
-
-  fileDrop.addEventListener('dragleave', () => {
-    fileDrop.classList.remove('dragover');
-  });
-
+  fileDrop.addEventListener('dragleave', () => fileDrop.classList.remove('dragover'));
   fileDrop.addEventListener('drop', (e) => {
     e.preventDefault();
     fileDrop.classList.remove('dragover');
@@ -396,172 +494,92 @@
   function handleFile() {
     const file = fileInput.files[0];
     if (!file) return;
-
     selectedFile = file;
     fileDrop.classList.add('has-file');
 
-    // Show preview
     const reader = new FileReader();
     reader.onload = (e) => {
-      // Store base64 (strip the data URL prefix)
-      fileBase64 = e.target.result.split(',')[1];
-
-      // Show preview
       const existing = fileDrop.querySelector('.preview-img');
       if (existing) existing.remove();
-
       const img = document.createElement('img');
       img.src = e.target.result;
       img.className = 'preview-img';
       fileDrop.appendChild(img);
-
       fileDrop.querySelector('.drop-text').textContent = file.name;
       fileDrop.querySelector('.drop-hint').textContent = `${(file.size / 1024).toFixed(0)} KB`;
     };
     reader.readAsDataURL(file);
   }
 
-  // GitHub API helpers
-  function getConfig() {
-    return {
-      owner: document.getElementById('gh-owner').value.trim(),
-      repo: document.getElementById('gh-repo').value.trim(),
-      token: document.getElementById('gh-token').value.trim(),
-    };
-  }
-
-  async function githubAPI(path, method, body, config) {
-    const response = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/${path}`, {
-      method,
-      headers: {
-        'Authorization': `Bearer ${config.token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/vnd.github.v3+json',
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || `GitHub API error: ${response.status}`);
-    }
-
-    return response.json();
-  }
-
-  // Get file content from repo
-  async function getFileContent(path, config) {
-    try {
-      const data = await githubAPI(`contents/${path}?ref=${BRANCH}`, 'GET', null, config);
-      return {
-        content: JSON.parse(atob(data.content)),
-        sha: data.sha,
-      };
-    } catch (e) {
-      // File doesn't exist yet
-      return { content: [], sha: null };
-    }
-  }
-
+  // =============================================
   // Upload
-  async function handleSubmit() {
-    const config = getConfig();
-    const status = document.getElementById('status');
+  // =============================================
+  document.getElementById('submit-btn').addEventListener('click', async () => {
+    const statusEl = document.getElementById('upload-status');
     const submitBtn = document.getElementById('submit-btn');
 
-    // Validate
-    if (!config.owner || !config.repo || !config.token) {
-      showStatus('Please fill in all GitHub config fields.', 'error');
-      return;
-    }
-
-    if (!selectedFile || !fileBase64) {
-      showStatus('Please select an image file.', 'error');
+    if (!selectedFile) {
+      showStatus(statusEl, 'Please select an image.', 'error');
       return;
     }
 
     const title = document.getElementById('entry-title').value.trim();
     if (!title) {
-      showStatus('Please enter a title.', 'error');
+      showStatus(statusEl, 'Please enter a title.', 'error');
       return;
     }
 
     submitBtn.disabled = true;
-    showStatus('Uploading image to GitHub...', 'loading');
+    showStatus(statusEl, 'Uploading...', 'loading');
 
     try {
-      // 1. Upload the image
-      const ext = selectedFile.name.split('.').pop().toLowerCase();
-      const timestamp = Date.now();
-      const safeTitle = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
-      const imagePath = `images/${safeTitle}-${timestamp}.${ext}`;
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+      formData.append('title', title);
+      formData.append('type', document.getElementById('entry-type').value);
+      formData.append('credit', document.getElementById('entry-credit').value.trim());
+      formData.append('year', document.getElementById('entry-year').value);
+      formData.append('caption', document.getElementById('entry-caption').value.trim());
 
-      await githubAPI(`contents/${imagePath}`, 'PUT', {
-        message: `Add gallery image: ${title}`,
-        content: fileBase64,
-        branch: BRANCH,
-      }, config);
+      const resp = await fetch(`${API_URL}/upload`, {
+        method: 'POST',
+        headers: { 'X-Admin-Pin': currentPin },
+        body: formData,
+      });
 
-      showStatus('Image uploaded. Updating gallery data...', 'loading');
+      const data = await resp.json();
 
-      // 2. Get current gallery data
-      const { content: galleryData, sha } = await getFileContent('gallery-data.json', config);
+      if (data.success) {
+        showStatus(statusEl, `"${title}" added to the archive!`, 'success');
 
-      // 3. Add new entry
-      const newEntry = {
-        title: title,
-        image: imagePath,
-        type: document.getElementById('entry-type').value,
-        credit: document.getElementById('entry-credit').value.trim() || null,
-        year: document.getElementById('entry-year').value,
-        caption: document.getElementById('entry-caption').value.trim() || null,
-        added: new Date().toISOString(),
-      };
-
-      galleryData.push(newEntry);
-
-      // 4. Update gallery-data.json
-      const updateBody = {
-        message: `Add gallery entry: ${title}`,
-        content: btoa(unescape(encodeURIComponent(JSON.stringify(galleryData, null, 2)))),
-        branch: BRANCH,
-      };
-
-      if (sha) {
-        updateBody.sha = sha;
+        // Reset form
+        document.getElementById('entry-title').value = '';
+        document.getElementById('entry-caption').value = '';
+        document.getElementById('entry-credit').value = '';
+        selectedFile = null;
+        fileDrop.classList.remove('has-file');
+        const preview = fileDrop.querySelector('.preview-img');
+        if (preview) preview.remove();
+        fileDrop.querySelector('.drop-text').textContent = 'Drop an image here or click to browse';
+        fileDrop.querySelector('.drop-hint').textContent = 'PNG, JPG, GIF, WEBP';
+        fileInput.value = '';
+      } else {
+        showStatus(statusEl, data.error || 'Upload failed.', 'error');
       }
-
-      await githubAPI('contents/gallery-data.json', 'PUT', updateBody, config);
-
-      showStatus(`"${title}" added to the archive! It will appear on the gallery page shortly.`, 'success');
-
-      // Reset form
-      document.getElementById('entry-title').value = '';
-      document.getElementById('entry-caption').value = '';
-      document.getElementById('entry-credit').value = '';
-      selectedFile = null;
-      fileBase64 = null;
-      fileDrop.classList.remove('has-file');
-      const preview = fileDrop.querySelector('.preview-img');
-      if (preview) preview.remove();
-      fileDrop.querySelector('.drop-text').textContent = 'Drop an image here or click to browse';
-      fileDrop.querySelector('.drop-hint').textContent = 'PNG, JPG, GIF, WEBP';
-      fileInput.value = '';
-
     } catch (e) {
-      showStatus(`Error: ${e.message}`, 'error');
+      showStatus(statusEl, `Error: ${e.message}`, 'error');
     } finally {
       submitBtn.disabled = false;
     }
+  });
+
+  function showStatus(el, message, type) {
+    el.textContent = message;
+    el.className = `status ${type}`;
   }
 
-  function showStatus(message, type) {
-    const status = document.getElementById('status');
-    status.textContent = message;
-    status.className = `status ${type}`;
-  }
-
-  document.getElementById('submit-btn').addEventListener('click', handleSubmit);
+  // Focus first PIN digit on load
+  digits[0].focus();
 </script>
 
 </body>
