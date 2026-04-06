@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery — Pandemic Paradise Archive</title>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container container--wide">
+
+  <header class="site-header">
+    <a href="index.html" class="logo">Pandemic Paradise</a>
+    <nav class="site-nav">
+      <a href="timeline.html">Timeline</a>
+      <a href="gallery.html" class="active">Gallery</a>
+      <a href="stories.html">Stories</a>
+      <a href="community.html">Community</a>
+      <a href="the-world.html">The World</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <section class="page-header">
+    <span class="icon">📸</span>
+    <h1>Gallery</h1>
+    <p>Screenshots, videos, and builds from the world that was. Everything the community has preserved.</p>
+  </section>
+
+  <div class="gallery-filters">
+    <button class="filter-btn active">All</button>
+    <button class="filter-btn">Screenshots</button>
+    <button class="filter-btn">Builds</button>
+    <button class="filter-btn">Videos</button>
+    <button class="filter-btn">Other</button>
+  </div>
+
+  <div class="gallery-grid">
+
+    <!-- ===========================================
+         HOW TO ADD IMAGES
+         ===========================================
+         Copy this block for each new gallery item.
+         Put your image files in an "images/" folder.
+         Replace the placeholder div with an <img> tag.
+
+         <div class="gallery-item">
+           <div class="thumb">
+             <img src="images/your-screenshot.png" alt="Description of the image">
+             <span class="tag">Screenshot</span>
+           </div>
+           <div class="info">
+             <h3>Title of the image</h3>
+             <p>Short description or caption.</p>
+             <div class="meta">Submitted by PlayerName · 2020</div>
+           </div>
+         </div>
+         =========================================== -->
+
+    <!-- Empty state — remove this section once you start adding images -->
+    <div class="gallery-empty">
+      <div class="icon">📷</div>
+      <h3>The archive is waiting</h3>
+      <p>Screenshots, videos, and builds will appear here as the community submits them. If you have anything from the old server, now's the time.</p>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>Built with <span class="heart">♥</span> by the PP community · 2026</p>
+  </footer>
+
+</div>
+
+</body>
+</html>
