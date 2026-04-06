@@ -157,6 +157,9 @@
             <option value="screenshot">Screenshot</option>
             <option value="build">Build</option>
             <option value="video">Video</option>
+            <option value="meme">Meme</option>
+            <option value="message">Message</option>
+            <option value="rare">Rare</option>
             <option value="other">Other</option>
           </select>
         </div>
@@ -391,7 +394,7 @@ window.editGallery = function(index) {
   const item = galleryItems[index];
   showEditModal('Edit Gallery Entry', [
     { key: 'title', label: 'Title', value: item.title },
-    { key: 'type', label: 'Type', value: item.type, type: 'select', options: ['screenshot','build','video','other'] },
+    { key: 'type', label: 'Type', value: item.type, type: 'select', options: ['screenshot','build','video','meme','message','rare','other'] },
     { key: 'credit', label: 'Submitted by', value: item.credit || '' },
     { key: 'year', label: 'Year', value: item.year || '', type: 'select', options: ['2020','2021','2022','2023','2024','2025','2026'] },
     { key: 'caption', label: 'Caption', value: item.caption || '', type: 'textarea' },
