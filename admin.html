@@ -143,6 +143,7 @@
       <a href="stories.html">Stories</a>
       <a href="community.html">Community</a>
       <a href="submit.html">Submit</a>
+      <a href="guestbook.html">Guestbook</a>
       <a href="about.html">About</a>
     </nav>
   </header>
@@ -178,6 +179,7 @@
         <button class="tab" data-tab="timeline">⏳ Timeline</button>
         <button class="tab" data-tab="community">👥 Community</button>
         <button class="tab" data-tab="pending">📥 Pending</button>
+        <button class="tab" data-tab="guestbook">📖 Guestbook</button>
       </div>
 
       <!-- GALLERY -->
@@ -285,6 +287,18 @@
           <button onclick="loadPending()" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--green-primary);background:none;border:1px solid var(--green-dim);padding:6px 14px;cursor:pointer;transition:all 0.2s ease" onmouseover="this.style.background='var(--green-glow)'" onmouseout="this.style.background='none'">↻ Refresh</button>
         </div>
         <div id="pending-list" class="entries-grid"></div>
+      </div>
+
+      <!-- GUESTBOOK -->
+      <div class="tab-panel" id="panel-guestbook">
+        <div style="background:var(--bg-card);border:1px solid var(--border);padding:20px;margin-bottom:24px">
+          <p style="font-size:14px;color:var(--text-secondary);line-height:1.6">Guestbook entries post immediately. You can delete inappropriate ones here.</p>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <h3 id="gb-admin-header" style="font-family:'Silkscreen',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin:0">Guestbook entries</h3>
+          <button onclick="loadGuestbookAdmin()" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--green-primary);background:none;border:1px solid var(--green-dim);padding:6px 14px;cursor:pointer;transition:all 0.2s ease" onmouseover="this.style.background='var(--green-glow)'" onmouseout="this.style.background='none'">↻ Refresh</button>
+        </div>
+        <div id="guestbook-list" class="entries-grid"></div>
       </div>
 
     </div>
@@ -409,7 +423,7 @@ async function apiPost(path, body, isFormData = false) {
 }
 async function apiGet(path) { const resp = await fetch(`${API_URL}${path}`); return resp.json(); }
 
-async function loadAllData() { await Promise.all([loadGallery(), loadStories(), loadTimeline(), loadCommunity(), loadPending()]); }
+async function loadAllData() { await Promise.all([loadGallery(), loadStories(), loadTimeline(), loadCommunity(), loadPending(), loadGuestbookAdmin()]); }
 
 // GALLERY
 let galleryItems = [];
@@ -621,6 +635,33 @@ window.rejectPending = async function(index) {
   if (!confirm('Reject this submission? This cannot be undone.')) return;
   const data = await apiPost('/pending/reject', { index });
   if (data.success) { await loadPending(); }
+};
+
+// GUESTBOOK ADMIN
+let guestbookItems = [];
+async function loadGuestbookAdmin() {
+  try { const resp = await fetch(`${API_URL}/guestbook`); guestbookItems = await resp.json(); } catch(e) { guestbookItems = []; }
+  renderGuestbookList();
+}
+function renderGuestbookList() {
+  const list = document.getElementById('guestbook-list');
+  document.getElementById('gb-admin-header').textContent = `Guestbook entries (${guestbookItems.length})`;
+  if (guestbookItems.length === 0) { list.innerHTML = '<div class="empty-list" style="grid-column:1/-1">No guestbook entries yet.</div>'; return; }
+  list.innerHTML = guestbookItems.map((item, i) => {
+    const date = new Date(item.date).toLocaleDateString();
+    return `<div class="story-card-admin">
+      <div class="story-quote-preview">"${item.message}"</div>
+      <div class="story-footer">
+        <div class="story-meta"><strong>${item.name}</strong> · ${date}</div>
+        <button class="btn-delete" style="padding:3px 8px;font-family:'Space Mono',monospace;font-size:10px;background:none;cursor:pointer" onclick="deleteGuestbook(${i})">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+window.deleteGuestbook = async function(index) {
+  if (!confirm(`Delete guestbook entry from "${guestbookItems[index].name}"?`)) return;
+  const data = await apiPost('/guestbook/delete', { index });
+  if (data.success) await loadGuestbookAdmin();
 };
 
 // DRAG AND DROP REORDER

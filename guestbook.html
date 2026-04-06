@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guestbook — Pandemic Paradise Archive</title>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .guestbook-wrapper { max-width: 700px; margin: 0 auto; }
+
+  /* Sign form */
+  .sign-form {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 40px;
+  }
+
+  .sign-form h3 {
+    font-family: 'Silkscreen', monospace;
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+  }
+
+  .sign-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .sign-row input {
+    flex: 1;
+    padding: 10px 14px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-family: 'Lora', Georgia, serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  .sign-row input:focus { border-color: var(--green-dim); }
+  .sign-row input::placeholder { color: var(--text-muted); }
+
+  .sign-message {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-family: 'Lora', Georgia, serif;
+    font-size: 14px;
+    outline: none;
+    resize: none;
+    height: 70px;
+    transition: border-color 0.3s ease;
+    margin-bottom: 12px;
+  }
+
+  .sign-message:focus { border-color: var(--green-dim); }
+  .sign-message::placeholder { color: var(--text-muted); }
+
+  .sign-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .char-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .char-count.warn { color: var(--amber); }
+  .char-count.over { color: #f87171; }
+
+  .sign-btn {
+    font-family: 'Silkscreen', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 10px 28px;
+    background: transparent;
+    border: 1px solid var(--green-primary);
+    color: var(--green-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .sign-btn:hover:not(:disabled) {
+    background: var(--green-glow);
+    box-shadow: 0 0 16px var(--green-glow);
+  }
+
+  .sign-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .sign-status {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    margin-top: 12px;
+    padding: 10px 14px;
+    display: none;
+  }
+
+  .sign-status.success { display: block; color: var(--green-primary); background: var(--green-glow); border: 1px solid var(--green-dim); }
+  .sign-status.error { display: block; color: #f87171; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); }
+
+  /* Entries */
+  .gb-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+
+  .gb-entries { padding-bottom: 60px; }
+
+  .gb-entry {
+    display: flex;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    animation: fadeInUp 0.4s ease-out;
+  }
+
+  .gb-entry:first-child { padding-top: 0; }
+
+  .gb-avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Silkscreen', monospace;
+    font-size: 13px;
+    color: var(--green-primary);
+    flex-shrink: 0;
+  }
+
+  .gb-content { flex: 1; min-width: 0; }
+
+  .gb-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .gb-name {
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    color: var(--amber);
+  }
+
+  .gb-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+  }
+
+  .gb-message {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    word-break: break-word;
+  }
+
+  .gb-empty {
+    text-align: center;
+    padding: 60px 24px;
+    border: 2px dashed var(--border);
+  }
+
+  .gb-empty .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
+  .gb-empty h3 { font-family: 'Silkscreen', monospace; font-size: 14px; color: var(--text-secondary); margin-bottom: 6px; }
+  .gb-empty p { font-size: 13px; color: var(--text-muted); }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .sign-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="site-header">
+    <a href="index.html" class="logo">Pandemic Paradise</a>
+    <nav class="site-nav">
+      <a href="timeline.html">Timeline</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="stories.html">Stories</a>
+      <a href="community.html">Community</a>
+      <a href="submit.html">Submit</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <section class="page-header">
+    <span class="icon">📖</span>
+    <h1>Guestbook</h1>
+    <p>Leave your mark. If you were part of Pandemic Paradise, sign in below.</p>
+  </section>
+
+  <div class="guestbook-wrapper">
+
+    <div class="sign-form">
+      <h3>Sign the guestbook</h3>
+      <div class="sign-row">
+        <input type="text" id="gb-name" placeholder="Your player name" maxlength="50">
+      </div>
+      <textarea class="sign-message" id="gb-message" placeholder="Leave a message..." maxlength="300"></textarea>
+      <div class="sign-footer">
+        <span class="char-count" id="char-count">0 / 300</span>
+        <button class="sign-btn" id="gb-submit">Sign</button>
+      </div>
+      <div class="sign-status" id="gb-status"></div>
+    </div>
+
+    <div class="gb-count" id="gb-count"></div>
+    <div class="gb-entries" id="gb-entries"></div>
+
+  </div>
+
+  <footer>
+    <p>Built with <span class="heart">♥</span> by the PP community · 2026</p>
+  </footer>
+
+</div>
+
+<script>
+  const API_URL = 'https://pandemicparadise.colbysthickey.workers.dev';
+
+  // Char counter
+  const msgInput = document.getElementById('gb-message');
+  const charCount = document.getElementById('char-count');
+  msgInput.addEventListener('input', () => {
+    const len = msgInput.value.length;
+    charCount.textContent = `${len} / 300`;
+    charCount.className = 'char-count' + (len > 280 ? ' over' : len > 240 ? ' warn' : '');
+  });
+
+  // Load entries
+  async function loadGuestbook() {
+    const entriesEl = document.getElementById('gb-entries');
+    const countEl = document.getElementById('gb-count');
+    let entries = [];
+
+    try {
+      const resp = await fetch(`${API_URL}/guestbook`);
+      entries = await resp.json();
+    } catch (e) {
+      entries = [];
+    }
+
+    countEl.textContent = `${entries.length} ${entries.length === 1 ? 'signature' : 'signatures'}`;
+
+    if (entries.length === 0) {
+      entriesEl.innerHTML = `<div class="gb-empty"><div class="icon">📖</div><h3>Be the first to sign</h3><p>No one has signed the guestbook yet.</p></div>`;
+      return;
+    }
+
+    entriesEl.innerHTML = entries.map(entry => {
+      const initial = entry.name ? entry.name.charAt(0).toUpperCase() : '?';
+      const date = new Date(entry.date);
+      const timeAgo = getTimeAgo(date);
+
+      return `<div class="gb-entry">
+        <div class="gb-avatar">${initial}</div>
+        <div class="gb-content">
+          <div class="gb-header">
+            <span class="gb-name">${escapeHTML(entry.name)}</span>
+            <span class="gb-date">${timeAgo}</span>
+          </div>
+          <div class="gb-message">${escapeHTML(entry.message)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Submit
+  document.getElementById('gb-submit').addEventListener('click', async () => {
+    const name = document.getElementById('gb-name').value.trim();
+    const message = document.getElementById('gb-message').value.trim();
+    const statusEl = document.getElementById('gb-status');
+    const submitBtn = document.getElementById('gb-submit');
+
+    if (!name) { showStatus(statusEl, 'Please enter your name.', 'error'); return; }
+    if (!message) { showStatus(statusEl, 'Please write a message.', 'error'); return; }
+    if (message.length > 300) { showStatus(statusEl, 'Message too long (300 chars max).', 'error'); return; }
+
+    submitBtn.disabled = true;
+
+    try {
+      const resp = await fetch(`${API_URL}/guestbook/sign`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, message }),
+      });
+      const data = await resp.json();
+
+      if (data.success) {
+        showStatus(statusEl, 'Signed! Thanks for stopping by.', 'success');
+        document.getElementById('gb-name').value = '';
+        document.getElementById('gb-message').value = '';
+        charCount.textContent = '0 / 300';
+        charCount.className = 'char-count';
+        await loadGuestbook();
+      } else {
+        showStatus(statusEl, data.error || 'Failed to sign.', 'error');
+      }
+    } catch (e) {
+      showStatus(statusEl, 'Could not connect to server.', 'error');
+    }
+
+    submitBtn.disabled = false;
+  });
+
+  function getTimeAgo(date) {
+    const now = new Date();
+    const diff = now - date;
+    const mins = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(days / 365);
+
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 30) return `${days}d ago`;
+    if (months < 12) return `${months}mo ago`;
+    return `${years}y ago`;
+  }
+
+  function escapeHTML(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function showStatus(el, message, type) {
+    el.textContent = message;
+    el.className = `sign-status ${type}`;
+    if (type === 'success') setTimeout(() => { el.style.display = 'none'; }, 3000);
+  }
+
+  loadGuestbook();
+</script>
+<script src="theme.js"></script>
+</body>
+</html>
